@@ -8,9 +8,15 @@
 
 int main(){
     int *p = malloc(sizeof(int));
-    assert(p != NULL);
+    // assert(p != NULL);
+
+    if (p == NULL){
+        printf("Allocation failed\n");
+        return 1;
+    }
 
     printf("(%d) address of p:%p\n", getpid(), (void *)p);
+    printf("%d\n", *p);
 
     *p = 0;
 
@@ -19,7 +25,7 @@ int main(){
         *p = *p + 1;
         printf("(%d) p: %d\n", getpid(), *p);
     }
-
+    free(p);
     return 0;
 
 
