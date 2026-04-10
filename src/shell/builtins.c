@@ -21,8 +21,13 @@ void pathDirectory(){
     getcwd(cwd, sizeof(cwd) );
     printf("%s\n", cwd);
 }
-void moveDirectory(){
-    printf("move directory\n");
+
+void moveDirectory(void){
+    char *home = getenv("HOME");
+    char cwd;
+    
+    printf("%s\n", home);
+
 }
 
 builtin_t builtins[] = {

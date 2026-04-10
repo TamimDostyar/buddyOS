@@ -9,8 +9,9 @@ int main(void) {
     while (1) {
         printf("commander> ");
         fgets(input, sizeof(input), stdin);
-        input[strlen(input) -1] = '\0';
-        
+        // input[strlen(input) -1] = '\0';
+        input[strcspn(input, "\n")] = '\0';
+
         if (strlen(input) > 0) {
             parser(input);
         }
