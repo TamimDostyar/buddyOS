@@ -22,10 +22,12 @@ void pathDirectory(){
     printf("%s\n", cwd);
 }
 
+// i am thinking of using cwd to get the curren directory and when moving i can +/directory=distination
+
 void moveDirectory(void){
     char *home = getenv("HOME");
     char cwd;
-    
+
     printf("%s\n", home);
 
 }
