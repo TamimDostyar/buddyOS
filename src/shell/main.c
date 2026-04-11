@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "parser.h"
+// #include "history.h"
 
 int main(void) {
     char input[1024];
@@ -11,6 +12,7 @@ int main(void) {
         fgets(input, sizeof(input), stdin);
         // input[strlen(input) -1] = '\0';
         input[strcspn(input, "\n")] = '\0';
+        // history(input);
 
         if (strlen(input) > 0) {
             parser(input);
