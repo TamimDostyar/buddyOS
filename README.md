@@ -57,3 +57,6 @@ There is no single top-level build yet; each milestone is built and invoked acco
 ## Documentation
 
 Authoritative milestone text, testing checklists, and suggested source layouts live in **`docs/`**.
+
+
+This project will be later used to run BuddyAI I am developing, find the repo at ![REPO](https://github.com/TamimDostyar/buddy/)
