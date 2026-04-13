@@ -1,7 +1,7 @@
 # Light Project 3: Thread Library and Synchronization
 
 ## Project Goal
-Build a user-level thread library, then add synchronization primitives and test with concurrent data structures.
+Build a user-level thread library for **BuddyOS** processes, then add synchronization primitives and test with concurrent data structures.
 
 ## What I Will Build
 
@@ -14,7 +14,7 @@ Build a user-level thread library, then add synchronization primitives and test 
 ## Required Features
 
 1. User-level threads
-- Create and schedule threads in user space.
+- Create and schedule threads in user space on BuddyOS.
 - Support cooperative yield.
 - Support join semantics for completion.
 
@@ -55,4 +55,4 @@ This project maps to threading, critical sections, races, locks, and condition v
 
 ## Deliverable
 
-A working user-level thread library with synchronization primitives and concurrent demo programs.
+A working user-level thread library with synchronization primitives and concurrent demo programs running on BuddyOS.

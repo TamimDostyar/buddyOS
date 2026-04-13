@@ -1,7 +1,7 @@
-# Light Project 4: File System in Userspace (FUSE)
+# Light Project 4: BuddyOS On-Disk File System
 
 ## Project Goal
-Build a custom userspace file system with FUSE that can be mounted and used with normal Linux commands.
+Build a file system implementation for **BuddyOS**: layout on a virtual disk (or RAM disk), with operations exercised through BuddyOS’s file or block interface—not through mounting inside another OS.
 
 ## What I Will Build
 
@@ -10,16 +10,16 @@ Build a custom userspace file system with FUSE that can be mounted and used with
 - write
 - delete
 - mkdir
-- ls
+- list directory
 
 ## Required Features
 
-1. FUSE integration
-- Mount and unmount file system.
-- Implement required callback handlers.
+1. Integration surface
+- Connect the FS to BuddyOS via a **block device**, **VFS hooks**, or a dedicated test server in the kernel, as your architecture defines.
+- No dependency on external “userspace FS bridge” frameworks.
 
 2. Storage model
-- Back data with one virtual disk file.
+- Back data with one virtual disk image (or contiguous region).
 - Manage free space with a block bitmap.
 
 3. Metadata model
@@ -32,11 +32,11 @@ Build a custom userspace file system with FUSE that can be mounted and used with
 - create directories and list contents.
 
 5. Error handling
-- Return correct Linux-style errors for invalid paths and operations.
+- Return consistent BuddyOS error codes for invalid paths and operations.
 
 ## Suggested Structure
 
-- fs/fuse_main.c
+- fs/fs_main.c (or vfs glue)
 - fs/inode.c
 - fs/bitmap.c
 - fs/dir.c
@@ -44,8 +44,8 @@ Build a custom userspace file system with FUSE that can be mounted and used with
 
 ## Testing Checklist
 
-- Mount succeeds.
-- mkdir and ls behave correctly.
+- Format or open disk succeeds.
+- mkdir and list behave correctly.
 - create/write/read/delete works for multiple files.
 - Data remains correct across multiple operations.
 - Free block bitmap updates correctly.
@@ -56,4 +56,4 @@ This project maps to inodes, directories, allocation bitmaps, and file-system la
 
 ## Deliverable
 
-A mounted FUSE file system usable with common Linux tools.
+A BuddyOS file-system implementation usable from your kernel or user-mode FS layer, backed by the virtual disk model.

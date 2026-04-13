@@ -1,52 +1,51 @@
-# Light Project 5: Linux Kernel Module and Custom System Call
+# Light Project 5: BuddyOS Kernel Syscall and Kernel Info
 
 ## Project Goal
-Go inside Linux kernel internals by creating a loadable kernel module and adding a custom system call.
+Extend **BuddyOS** at the user–kernel boundary: add a custom system call and a small, documented way to read kernel information (no loadable module framework from another OS).
 
 ## What I Will Build
 
-- loadable kernel module
-- custom /proc entry
-- custom system call in kernel source
-- user program that invokes the new syscall
+- syscall implementation in the BuddyOS kernel
+- registration in your syscall table / trap handler for the target architecture
+- user-mode test program that invokes the new syscall
+- optional: simple kernel info export (for example a `buddyos_info` syscall that fills a buffer, or formatted output on a debug channel)
 
 ## Required Features
 
-1. Kernel module
-- Build and load module.
-- Expose system info via /proc/tamimos_info (or similar).
-- Support clean module unload.
+1. Kernel entry
+- Implement the syscall in the BuddyOS source tree.
+- Assign a syscall number consistent with your ABI documentation.
+- Rebuild the BuddyOS kernel and boot it (emulator or hardware) as you do for other milestones.
 
-2. Custom system call
-- Add syscall implementation in kernel source tree.
-- Register syscall number in the correct architecture table.
-- Rebuild kernel and boot into the modified kernel.
+2. Observable behavior
+- The syscall returns predictable data or status (for example version string, tick count, or a test magic value).
+- Errors from invalid arguments are handled cleanly.
 
 3. User-space caller
-- Write a C program that invokes the new syscall.
+- Write a C program linked for BuddyOS that invokes the new syscall.
 - Validate return values and error handling.
 
 4. Documentation
 - Keep build and run instructions clear and reproducible.
-- Document kernel version and config used.
+- Document the syscall number, arguments, and any struct layout.
 
 ## Suggested Structure
 
-- kernel/tamimos_module.c
-- kernel/patches/ (notes and patch files)
-- kernel/userspace/call_tamimos_syscall.c
+- kernel/syscall_buddyos.c (or merged into your syscall dispatch)
+- kernel/userspace/call_buddyos_syscall.c
+- notes or patches under `kernel/patches/` if you track ABI changes
 
 ## Testing Checklist
 
-- Module inserts and removes without errors.
-- /proc entry prints expected info.
-- Custom syscall returns expected value.
-- Caller program works on modified kernel.
+- Kernel builds and boots.
+- Syscall returns expected value in the happy path.
+- User test program runs on BuddyOS and exercises the syscall.
+- Invalid inputs fail without crashing the kernel.
 
 ## OSTEP Connection
 
-This project maps to user-kernel boundary, system call flow, and kernel-level programming.
+This project maps to the user–kernel boundary, system call flow, and kernel-level programming.
 
 ## Deliverable
 
-A modified Linux kernel setup where a custom syscall is running and callable from user space.
+A BuddyOS kernel build where the custom syscall exists and is callable from BuddyOS user mode, with a short runbook for verification.

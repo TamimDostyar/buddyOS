@@ -1,7 +1,7 @@
 # Light Project 2: Memory Allocator
 
 ## Project Goal
-Implement a memory allocator in C as a drop-in replacement for the malloc family calls.
+Implement a memory allocator in C as a drop-in replacement for the malloc family calls **inside BuddyOS** (or in a minimal test harness that uses the same memory API the kernel exposes).
 
 ## What I Will Build
 
@@ -13,7 +13,7 @@ Implement a memory allocator in C as a drop-in replacement for the malloc family
 ## Required Features
 
 1. Heap source
-- Use sbrk() or mmap() to request memory from the OS.
+- Obtain backing storage from **BuddyOS**: for example a `sbrk`-style syscall, a fixed arena region provided at link time, or another documented kernel interface—not reliance on a foreign OS’s `mmap` unless that is explicitly your BuddyOS implementation detail.
 
 2. Allocation strategy
 - Use a free list.
@@ -52,4 +52,4 @@ This project maps directly to heap internals, allocator policies, fragmentation,
 
 ## Deliverable
 
-A tested allocator library that can replace malloc family calls in small test programs.
+A tested allocator library that can replace malloc family calls in BuddyOS programs or kernel-linked tests.

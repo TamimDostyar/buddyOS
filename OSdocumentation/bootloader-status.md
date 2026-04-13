@@ -1,6 +1,6 @@
 # Bootloader Status and Runbook
 
-This file documents the current BIOS bootloader state and the exact terminal flow used to verify progress.
+This file documents the current BIOS bootloader state and the exact terminal flow used to verify progress. Commands below are **host development tools** (assembler, emulator) to build and inspect the BuddyOS boot image—they are not part of the BuddyOS runtime.
 
 ## Current state
 

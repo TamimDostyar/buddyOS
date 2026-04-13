@@ -1,12 +1,12 @@
-# Light Project 1: Custom Linux Shell
+# Light Project 1: Custom Shell (OS from scratch)
 
 ## Project Goal
-Build a Unix shell in C that can be used in a real terminal.
+Build a shell in C that runs in the **BuddyOS** environment and drives command execution through BuddyOS process and I/O primitives.
 
 ## What I Will Build
 
 - command parser
-- process launcher using fork and exec
+- process launcher using BuddyOS spawn (or equivalent: create process, load image, run)
 - built-in commands
 - support for pipes and redirection
 
@@ -14,8 +14,8 @@ Build a Unix shell in C that can be used in a real terminal.
 
 1. Basic command execution
 - Parse input line into command and arguments.
-- Run external programs with fork() + execvp().
-- Wait for foreground processes with waitpid().
+- Run external programs using BuddyOS APIs to start a child and wait for it (foreground), not a host OS `fork`/`exec` pair unless that *is* your documented BuddyOS interface.
+- Wait for foreground processes to complete before showing the next prompt.
 
 2. Built-in commands
 - cd
@@ -29,7 +29,7 @@ Build a Unix shell in C that can be used in a real terminal.
 
 4. Pipes
 - Support at least one pipeline using |.
-- Example: ls | wc -l
+- Example: two small BuddyOS test programs (producer | consumer), or any pair of binaries your image provides.
 
 5. Stability
 - Handle empty input and invalid commands gracefully.
@@ -46,15 +46,15 @@ Build a Unix shell in C that can be used in a real terminal.
 ## Testing Checklist
 
 - Built-ins work correctly.
-- External commands run correctly.
-- Redirection creates/reads files correctly.
+- External commands run correctly under BuddyOS.
+- Redirection creates/reads files correctly on BuddyOS storage.
 - Single pipe flow works.
 - Invalid command does not crash shell.
 
 ## OSTEP Connection
 
-This project maps to process and execution concepts around fork, exec, wait, and basic shell behavior.
+This project maps to process creation, execution, waiting, and basic shell behavior—the same ideas as “fork/exec/wait,” expressed through BuddyOS.
 
 ## Deliverable
 
-A working shell executable that supports built-ins, pipes, and redirection in terminal.
+A working BuddyOS shell executable that supports built-ins, pipes, and redirection in your target environment (serial console, framebuffer text, etc.).
