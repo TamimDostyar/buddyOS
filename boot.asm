@@ -1,26 +1,36 @@
-; BuddyOS — minimal 32-bit x86 bring-up stub (Multiboot v1).
-; For a future linked kernel booted by GRUB or qemu -kernel.
-; Other parts of this repo (e.g. src/shell) are normal programs for Linux/macOS.
+; BuddyOS — minimal BIOS boot sector.
+; Assembled as a raw 512-byte binary and loaded by BIOS at 0x7C00.
 
-[BITS 32]
+[BITS 16]
+[ORG 0x7C00]
 
-MBOOT_MAGIC equ 0x1BADB002
-MBOOT_FLAGS equ 0x00000003
-MBOOT_CHECK equ -(MBOOT_MAGIC + MBOOT_FLAGS)
-
-ALIGN 4
-multiboot_header:
-    dd MBOOT_MAGIC
-    dd MBOOT_FLAGS
-    dd MBOOT_CHECK
-
-global start
 start:
-    mov esp, _sys_stack
-hang:
-    jmp hang
+    cli
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
+    mov ss, ax
+    mov sp, 0x7C00
+    sti
 
-SECTION .bss
-ALIGN 16
-    resb 8192
-_sys_stack:
+    mov si, boot_msg
+
+print_loop:
+    lodsb
+    test al, al
+    jz halt
+    mov ah, 0x0E
+    mov bh, 0x00
+    mov bl, 0x07
+    int 0x10
+    jmp print_loop
+
+halt:
+    cli
+    hlt
+    jmp halt
+
+boot_msg db "BuddyOS booted!", 0
+
+times 510 - ($ - $$) db 0
+dw 0xAA55

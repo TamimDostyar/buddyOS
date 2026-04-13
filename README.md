@@ -58,5 +58,7 @@ There is no single top-level build yet; each milestone is built and invoked acco
 
 Authoritative milestone text, testing checklists, and suggested source layouts live in **`docs/`**.
 
+- Bootloader progress and reproducible run steps are documented in `docs/bootloader-status.md`.
+
 
 This project will eventually be used to run BuddyAI, which is currently under development. You can find the BuddyAI repository here: [REPO FOR BUDDY AI](https://github.com/TamimDostyar/buddy/)
