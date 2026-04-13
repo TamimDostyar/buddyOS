@@ -34,7 +34,7 @@ void computerDirectory(char *args){
     if (strcmp(path, "..") == 0){
         printf("Moving a folder back %s\n", path);
     }
-    printf("Type pwd to see your current path\n");
+    // printf("Type pwd to see your current path\n");
 
 }
 
