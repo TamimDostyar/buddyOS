@@ -3,9 +3,8 @@
   <img src="asset/cIcon.png" width="32%" />
 </p>
 
-Educational implementations of core operating-system concepts in **C** for **BuddyOS**—an OS built from scratch. The repository is organized as milestones (boot path, shell, memory management, concurrency, file system, and kernel interfaces). Each milestone targets BuddyOS behavior; a minimal **cross-compiler / emulator** setup (for example QEMU) is only a development convenience, not a dependency on a full desktop OS as the runtime.
+Educational implementations of core operating-system concepts in **C** for **BuddyOS**—an OS built from scratch. The repository is organized as milestones that build the OS in dependency order (boot path, kernel memory, process scheduling, file system, system calls, and shell). A minimal **cross-compiler / emulator** setup (for example QEMU) is only a development convenience, not a dependency on a full desktop OS as the runtime.
 
-Optional use of **C++** is limited to assignments that explicitly require it.
 
 ## Objectives
 
@@ -15,30 +14,37 @@ Optional use of **C++** is limited to assignments that explicitly require it.
 
 ## Scope
 
-Milestones are defined for **BuddyOS**: the shell runs in the BuddyOS environment and launches programs via BuddyOS process APIs; the allocator uses the BuddyOS heap or equivalent kernel interface; threading is user-level on BuddyOS; the file system attaches to BuddyOS block/VFS layers; kernel work adds BuddyOS syscalls and in-kernel facilities—not third-party kernel module frameworks.
+Milestones are defined for **BuddyOS** and intentionally avoid assuming prebuilt kernel subsystems. You implement each layer progressively: bring-up first, then kernel memory, process execution, storage, user-kernel interface, and finally user-facing applications.
 
 ## Milestones
 
 | Order | Focus | Summary |
 |------:|--------|---------|
-| 1 | Shell | Parser, BuddyOS process launch, built-ins, pipes, I/O redirection |
-| 2 | Allocator | `malloc` family semantics, free list, coalescing, alignment |
-| 3 | Concurrency | User-level threads, mutexes, condition variables, concurrent data structures |
-| 4 | File system | Virtual disk, block bitmap, inodes, directories—BuddyOS integration |
-| 5 | Kernel | Custom BuddyOS syscall, kernel info path, user-mode test |
+| 1 | Bootloader + Kernel | Bootloader load path, protected mode, VGA text, keyboard interrupt |
+| 2 | Kernel Allocator | `kmalloc`/`kfree`, free list, coalescing, alignment |
+| 3 | Process Scheduler | PCB lifecycle, context switching, round-robin, `fork/exec/wait/exit` |
+| 4 | File System | Virtual disk, bitmap, inodes, directories, file operations |
+| 5 | System Calls | User-kernel boundary, syscall table, user-mode wrappers and tests |
+| 6 | Shell | Built-ins, command execution, redirection, pipeline support |
 
 Detailed requirements and acceptance criteria for each milestone are under `docs/`.
 
 ## Repository layout
 
 ```
-docs/          Assignment specifications and build notes
-shell/         Interactive shell (milestone 1)
-alloc/         Memory allocator (milestone 2; placeholder until implemented)
-thread/        Threads and synchronization (milestone 3)
-fs/            File-system implementation (milestone 4)
-kernel/        Kernel and syscall-related sources (milestone 5)
+boot/          Bootloader and early boot assembly
+kernel/        Core kernel code (bring-up, memory, scheduler, syscalls)
+fs/            File-system implementation details (can later merge under kernel/fs)
+alloc/         Kernel allocator experiments/notes (can later merge under kernel/mm)
+userspace/     User-mode programs and libraries
+  shell/       BuddyOS shell app (project 6)
+  auth/        Login/authentication app (after syscalls + filesystem)
+  edit/        Text editor app (after filesystem + syscalls)
+docs/          Sequential project plans and acceptance checklists
+OSdocumentation/  Bring-up notes and run instructions
 ```
+
+Top-level `auth/` and `edit/` folders are currently idea placeholders. As implementation starts, place real sources under `userspace/auth/` and `userspace/edit/` so boundaries stay clear between kernel and apps.
 
 ## Prerequisites
 
@@ -46,14 +52,15 @@ Typical expectations per milestone include:
 
 - **Toolchain:** A C toolchain that can produce BuddyOS binaries (GCC/Clang with appropriate flags, `make`, and NASM where assembly is used).
 - **Bring-up:** QEMU (or similar) to run the boot image and later kernels, as documented in `OSdocumentation/bootloader-status.md`.
-- **Milestone 4:** BuddyOS block device or RAM-disk path to exercise the on-disk layout.
-- **Milestone 5:** Ability to rebuild the BuddyOS kernel and run user-mode tests that invoke new syscalls.
+- **Project 4:** BuddyOS block device or RAM-disk path to exercise the on-disk layout.
+- **Project 5:** Ability to rebuild the BuddyOS kernel and run user-mode tests that invoke syscalls.
+- **Project 6:** User-mode runtime ready so shell/auth/editor apps can call process and file syscalls.
 
 Exact versions and steps are specified in the assignment documents under `docs/`.
 
 ## Building and running
 
-There is no single top-level build for every milestone yet; each milestone is built and invoked according to its spec. Boot sector build and QEMU steps are in `OSdocumentation/bootloader-status.md`. The shell under `shell/` may include a local README with run instructions.
+There is no single top-level build for every project yet; each project is built and invoked according to its spec. Boot sector build and QEMU steps are in `OSdocumentation/bootloader-status.md`. The shell under `userspace/shell/` may include a local README with run instructions.
 
 ## Documentation
 

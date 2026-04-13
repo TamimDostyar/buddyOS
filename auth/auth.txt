@@ -1,1 +1,9 @@
-Logic behind the authentication so that the user can get in the system
+Authentication notes for BuddyOS login.
+
+Folder structure recommendation:
+- Keep this top-level `auth/` folder as planning notes only.
+- Implement login program source under `userspace/auth/`.
+
+Feature intent:
+- `auth` is the login/authentication app for BuddyOS users.
+- It should run in user mode and call BuddyOS syscalls for user/session state.

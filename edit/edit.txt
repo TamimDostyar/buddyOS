@@ -1,1 +1,9 @@
-Sometimes we may want to update document and this is where i will write the logic
+Editor notes for BuddyOS.
+
+Folder structure recommendation:
+- Keep this top-level `edit/` folder as planning notes only.
+- Implement editor program source under `userspace/edit/`.
+
+Feature intent:
+- `edit` is the in-OS text editing app.
+- It should run in user mode and use BuddyOS file and terminal syscalls.

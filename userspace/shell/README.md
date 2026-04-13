@@ -1,7 +1,7 @@
 Below is the sample shell with very minimal work:
     
     <OS>: pwd
-        /Users/tamimdostyar/Documents/personal/operating-system/shell
+        /Users/tamimdostyar/Documents/personal/operating-system/userspace/shell
     <OS>: ls
         .
         ..
@@ -21,11 +21,12 @@ Below is the sample shell with very minimal work:
     <OS>: ls
         .
         ..
-        alloc
-        shell
-        fs
-        thread
+        boot
         kernel
+        userspace
+        docs
+        fs
+        alloc
     <OS>: exit
         Exiting...
 
