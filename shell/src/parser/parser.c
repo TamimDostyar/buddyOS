@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "parser.h"
-#include "builtins.h"
+#include "../builtin/builtins.h"
 
 void parser(char *input) {
     if (input == NULL || strlen(input) == 0) {

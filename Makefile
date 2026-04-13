@@ -8,7 +8,7 @@ SHELL_BUILD := build/shell
 SHELL_BIN   := build/mysh
 
 SHELL_SRCS := $(sort $(wildcard src/shell/*.c))
-SHELL_OBJS := $(patsubst src/shell/%.c,$(SHELL_BUILD)/%.o,$(SHELL_SRCS))
+SHELL_OBJS := $(patsubst shell/src/%.c,$(SHELL_BUILD)/%.o,$(SHELL_SRCS))
 
 .PHONY: all shell clean
 

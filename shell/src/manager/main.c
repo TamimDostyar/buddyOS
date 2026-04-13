@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "parser.h"
+#include "../parser/parser.h"
 // #include "history.h"
 
 int main(void) {
