@@ -20,8 +20,6 @@ print_loop:
     test al, al
     jz halt
     mov ah, 0x0E
-    mov bh, 0x00
-    mov bl, 0x07
     int 0x10
     jmp print_loop
 
@@ -30,7 +28,7 @@ halt:
     hlt
     jmp halt
 
-boot_msg db "BuddyOS booted!", 0
+boot_msg db "BuddyOS booted - under construction though!", 0
 
 times 510 - ($ - $$) db 0
 dw 0xAA55
