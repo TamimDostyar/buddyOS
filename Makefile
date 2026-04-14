@@ -27,7 +27,7 @@ run-boot: $(BOOT_BIN)
 $(SHELL_BIN): $(SHELL_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $^
 
-$(BOOT_BIN): boot.asm | build
+$(BOOT_BIN): boot/boot.asm | build
 	$(NASM) -f bin $< -o $@
 
 $(SHELL_BUILD)/%.o: shell/src/%.c | $(SHELL_BUILD)
