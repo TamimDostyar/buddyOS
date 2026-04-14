@@ -1,7 +1,7 @@
 # Project 1: Bootloader and Minimal C Kernel
 
 ## Prerequisites
-None. This is the foundation of BuddyOS.
+This is the foundation of BuddyOS.
 
 ## Goal
 Build the first bootable version of BuddyOS: a bootloader that loads your kernel, enters protected mode, and starts a minimal C kernel that can print text and react to keyboard input.
@@ -35,7 +35,6 @@ Build the first bootable version of BuddyOS: a bootloader that loads your kernel
 ## Suggested Structure
 - `boot/bootloader.asm`
 - `boot/gdt.asm`
-- `kernel/entry.asm`
 - `kernel/main.c`
 - `kernel/vga.c`
 - `kernel/interrupts.c`
