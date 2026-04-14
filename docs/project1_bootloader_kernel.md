@@ -35,7 +35,7 @@ Build the first bootable version of BuddyOS: a bootloader that loads your kernel
 ## Suggested Structure
 - `boot/bootloader.asm`
 - `boot/gdt.asm`
-- `kernel/main.c`
+- `kernel/kmain.c`
 - `kernel/vga.c`
 - `kernel/interrupts.c`
 - `kernel/keyboard.c`
