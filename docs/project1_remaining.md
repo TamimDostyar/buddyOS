@@ -1,10 +1,10 @@
 # Project 1 — Remaining: IDT, ISR, and Keyboard Interrupts
 
-## Where You Are Now
+## Where  Are Now
 
-Your bootloader and kernel boot successfully. The VGA driver works — you can see text on screen. What's missing is **interrupt handling**: the mechanism that lets hardware (like the keyboard) talk to your kernel.
+The VGA driver works — now we can see text on screen. What's missing is **interrupt handling**: the mechanism that lets hardware (like the keyboard) talk to the kernel.
 
-Right now if you press a key, nothing happens. By the end of this assignment your OS will react to keypresses and print them on screen.
+Right now if  press a key, nothing happens. By the end of this assignment the OS will react to keypresses and print them on screen.
 
 ---
 
@@ -19,17 +19,17 @@ PIC (Programmable Interrupt Controller) — routes the signal to the CPU
     ↓
 IDT (Interrupt Descriptor Table) — CPU looks up which function to call
     ↓
-ISR (Interrupt Service Routine) — your handler code runs
+ISR (Interrupt Service Routine) —  handler code runs
 ```
 
 ### What is the IDT?
 
-The **Interrupt Descriptor Table** is an array of 256 entries. Each entry tells the CPU: "when interrupt N fires, jump to this address." It's similar to the GDT you already set up, but for interrupts instead of memory segments.
+The **Interrupt Descriptor Table** is an array of 256 entries. Each entry tells the CPU: "when interrupt N fires, jump to this address." It's similar to the GDT  already set up, but for interrupts instead of memory segments.
 
 Each IDT entry is 8 bytes:
 ```
 Bits 0-15:   Lower 16 bits of handler address
-Bits 16-31:  Kernel code segment selector (0x08 from your GDT)
+Bits 16-31:  Kernel code segment selector (0x08 from  GDT)
 Bits 32-39:  Always zero
 Bits 40-47:  Flags (type, privilege level, present bit)
 Bits 48-63:  Upper 16 bits of handler address
@@ -37,9 +37,9 @@ Bits 48-63:  Upper 16 bits of handler address
 
 ### What is an ISR?
 
-An **Interrupt Service Routine** is the function the CPU jumps to when an interrupt fires. You need a small assembly stub for each interrupt that:
-1. Saves all CPU registers (so your kernel state isn't corrupted)
-2. Calls your C handler function
+An **Interrupt Service Routine** is the function the CPU jumps to when an interrupt fires.  need a small assembly stub for each interrupt that:
+1. Saves all CPU registers (so  kernel state isn't corrupted)
+2. Calls  C handler function
 3. Restores all registers
 4. Returns from the interrupt with `iret`
 
@@ -49,7 +49,7 @@ The **Programmable Interrupt Controller** (8259 chip) is the hardware that route
 - **Master PIC** handles IRQ 0–7 (timer, keyboard, etc.)
 - **Slave PIC** handles IRQ 8–15 (real-time clock, mouse, etc.)
 
-**Critical problem:** By default, the master PIC maps IRQ 0–7 to IDT entries 8–15. But entries 0–31 are reserved by the CPU for exceptions (divide by zero, page fault, etc.). You **must remap** the PIC so hardware IRQs don't collide with CPU exceptions.
+**Critical problem:** By default, the master PIC maps IRQ 0–7 to IDT entries 8–15. But entries 0–31 are reserved by the CPU for exceptions (divide by zero, page fault, etc.).  **must remap** the PIC so hardware IRQs don't collide with CPU exceptions.
 
 Standard remapping:
 - Master PIC → IDT entries 32–39 (IRQ 0 = entry 32, IRQ 1/keyboard = entry 33)
@@ -65,7 +65,7 @@ Complete the following in order. Each task builds on the previous one.
 
 ### Task 1: Create Port I/O Helper (`kernel/src/utils/ports.h`)
 
-Your kernel needs to read/write to hardware I/O ports. The x86 `in` and `out` instructions do this. Create a header with two inline functions:
+ kernel needs to read/write to hardware I/O ports. The x86 `in` and `out` instructions do this. Create a header with two inline functions:
 
 **`outb(uint16_t port, uint8_t val)`** — Write a byte to an I/O port:
 ```c
@@ -85,7 +85,7 @@ static inline uint8_t inb(uint16_t port) {
 
 These use GCC inline assembly. The `"a"` constraint means use the `al` register, `"Nd"` means use the `dx` register or an immediate. Don't worry about memorizing the syntax — just understand that `outb` sends a byte and `inb` receives one.
 
-**Ports you'll use later:**
+**Ports 'll use later:**
 | Port | Purpose |
 |------|---------|
 | `0x20` | Master PIC command |
@@ -98,7 +98,7 @@ These use GCC inline assembly. The `"a"` constraint means use the `al` register,
 
 ### Task 2: Fix the IDT Header (`kernel/src/utils/idt.h`)
 
-Your existing `idt.h` is missing an include guard and declares a function (`process_init`) that doesn't exist. Fix it:
+ existing `idt.h` is missing an include guard and declares a function (`process_init`) that doesn't exist. Fix it:
 
 1. Add `#ifndef IDT_H` / `#define IDT_H` / `#endif` include guard
 2. Remove the `process_init()` declaration
@@ -113,9 +113,9 @@ Your existing `idt.h` is missing an include guard and declares a function (`proc
 
 The CPU pushes different things depending on the interrupt:
 - **Exceptions 8, 10–14:** CPU pushes an error code automatically
-- **Everything else:** No error code — you must push a dummy `0` to keep the stack consistent
+- **Everything else:** No error code —  must push a dummy `0` to keep the stack consistent
 
-You need stubs for at least:
+ need stubs for at least:
 - ISR 0–31 (CPU exceptions)
 - ISR 32–47 (hardware IRQs from the PIC)
 
@@ -138,7 +138,7 @@ isr_N:
 **The `isr_common` handler** must:
 1. Save all registers so the C handler can inspect them
 2. Set up kernel data segment
-3. Call your C handler
+3. Call  C handler
 4. Restore everything and return
 
 ```nasm
@@ -152,7 +152,7 @@ isr_common:
     mov ax, ds
     push eax                ; Save data segment
 
-    ; Load kernel data segment (0x10 from your GDT)
+    ; Load kernel data segment (0x10 from  GDT)
     mov ax, 0x10
     mov ds, ax
     mov es, ax
@@ -199,7 +199,7 @@ isr_common:
 | 15–31 | Reserved/other | No |
 | 32–47 | Hardware IRQs | No |
 
-Use NASM macros (`ISR_NOERRCODE` and `ISR_ERRCODE`) like you already started — just expand them to cover all 48 entries.
+Use NASM macros (`ISR_NOERRCODE` and `ISR_ERRCODE`) like  already started — just expand them to cover all 48 entries.
 
 ---
 
@@ -233,7 +233,7 @@ Write a `pic_remap()` function. The PIC is programmed by sending a specific sequ
      outb(0xA1, 0x00)   // slave: enable all
 ```
 
-> **Tip:** You may want to add a small I/O delay between each command. A common trick is `outb(0x80, 0)` — port 0x80 is an unused port that causes a tiny delay.
+> **Tip:**  may want to add a small I/O delay between each command. A common trick is `outb(0x80, 0)` — port 0x80 is an unused port that causes a tiny delay.
 
 #### Step B: Register All ISR Handlers
 
@@ -248,7 +248,7 @@ In `idt_install()`:
 1. Zero out the entire `idt[256]` array
 2. Call `pic_remap()`
 3. Set every gate: `idt_set_gate(N, (uint32_t)isrN, 0x08, 0x8E)`
-   - `0x08` = your kernel code segment selector from the GDT
+   - `0x08` =  kernel code segment selector from the GDT
    - `0x8E` = flags: present, ring 0, 32-bit interrupt gate
 4. Load the IDT: `asm volatile("lidt (%0)" : : "r"(&idtp))`
 
@@ -269,9 +269,9 @@ struct regs {
 };
 ```
 
-> **Note:** The struct layout must exactly match the order things are pushed onto the stack. If you change `isr_common` in assembly, update this struct to match.
+> **Note:** The struct layout must exactly match the order things are pushed onto the stack. If  change `isr_common` in assembly, update this struct to match.
 
-Your handler should:
+ handler should:
 
 1. **For exceptions (int_no < 32):** Print the exception name and halt. Example:
    ```c
@@ -299,7 +299,7 @@ Your handler should:
    }
    ```
 
-   **EOI is critical.** If you don't send it, the PIC won't send any more interrupts from that IRQ line.
+   **EOI is critical.** If  don't send it, the PIC won't send any more interrupts from that IRQ line.
 
 ---
 
@@ -330,7 +330,7 @@ static const char scancode_to_ascii[128] = {
 };
 ```
 
-Your `keyboard_handler()`:
+ `keyboard_handler()`:
 1. Read the scancode from port 0x60
 2. Ignore key releases (scancode ≥ 0x80)
 3. Look up the ASCII character
@@ -355,7 +355,7 @@ void kmain(void) {
 
 After `idt_install()` loads the IDT and enables interrupts (`sti`), the keyboard IRQ will automatically fire whenever a key is pressed.
 
-**In the `Makefile`**, you need to:
+**In the `Makefile`**,  need to:
 1. Add the new `.c` files to `KERNEL_C_SRCS` — they should already be picked up by the existing wildcard `$(wildcard $(KERNEL_SRC)/utils/*.c)`, so just make sure `idt.c`, `isr.c`, and `keyboard.c` are properly named (no `.disabled`)
 2. Add a rule to assemble `isr.asm` with NASM (like the `entry.asm` rule):
    ```makefile
@@ -363,24 +363,24 @@ After `idt_install()` loads the IDT and enables interrupts (`sti`), the keyboard
    	$(NASM) -f elf32 $< -o $@
    ```
 3. Add `$(KERNEL_SRC)/utils/isr.o` to `KERNEL_OBJS`
-4. Increase the sector count in `boot.asm` if your kernel grows beyond 4 sectors (2KB). Update the padding in the Makefile to match.
+4. Increase the sector count in `boot.asm` if  kernel grows beyond 4 sectors (2KB). Update the padding in the Makefile to match.
 
 ---
 
 ## Debugging Tips
 
-- **Triple fault / reboot loop?** Your IDT is probably malformed or an entry points to garbage. Double-check that every `idt_set_gate` call uses the right function address.
+- **Triple fault / reboot loop?**  IDT is probably malformed or an entry points to garbage. Double-check that every `idt_set_gate` call uses the right function address.
 
-- **Keyboard doesn't respond?** Make sure you:
+- **Keyboard doesn't respond?** Make sure :
   1. Called `idt_install()`
   2. Remapped the PIC
   3. Set IDT entry **33** (not 1) for the keyboard
   4. Send EOI (`outb(0x20, 0x20)`) at the end of the handler
   5. Interrupts are enabled — add `sti` at the end of `idt_install()`
 
-- **Only first keypress works?** You forgot to send EOI.
+- **Only first keypress works?**  forgot to send EOI.
 
-- **Random exceptions firing?** Check your `isr_common` stack layout matches the `struct regs` in C exactly.
+- **Random exceptions firing?** Check  `isr_common` stack layout matches the `struct regs` in C exactly.
 
 - **Use QEMU's debug output:** Run with `-d int` to log all interrupts:
   ```
