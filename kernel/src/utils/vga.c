@@ -18,7 +18,7 @@ static inline uint16_t vga_entry(char c, uint8_t color) {
 }
 
 void vga_init() {
-    vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    vga_set_color(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
     vga_clear();
 }
 
@@ -53,7 +53,12 @@ void vga_putchar(char c) {
     if (c == '\n') {
         cursor_row++;
         cursor_col = 0;
-    } else {
+    } else if(c == '\b'){
+        if (cursor_col > 0) cursor_col --;
+        VGA_MEMORY[cursor_row * VGA_WIDTH + cursor_col] = vga_entry(' ', vga_current_color);
+    }
+    
+    else {
         VGA_MEMORY[cursor_row * VGA_WIDTH + cursor_col] = vga_entry(c, vga_current_color);
         cursor_col++;
         if (cursor_col >= VGA_WIDTH) {

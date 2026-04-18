@@ -1,8 +1,10 @@
-#include <stdio.h>
 #include "keyboard.h"
+#include "inb.h"
 
-// phiscall memory for the keyboard
-
+char ascii_normal[256] = {0};
+static char keyboard_buffer[256];
+static int buffer_head = 0;
+static int buffer_tail = 0;
 
 
 /*
@@ -10,8 +12,8 @@
     - so basically we need input and output for this
 */
 
-static void mappingKeys(void) {
-    char ascii_normal[256] = {0};
+void keyboard_init(void) {
+
     // all keys
     ascii_normal[scanA] = 'a';
     ascii_normal[scanB] = 'b';
@@ -47,46 +49,32 @@ static void mappingKeys(void) {
     ascii_normal[scanDot] = '.';
     ascii_normal[scanSlash] = '/';
     ascii_normal[scanBackQuote] = '`';
-
-    // special keys
-    // ascii_normal[scanESC] = '\0';
-    // ascii_normal[scanTab] = '\0';
-    // ascii_normal[scanCapsLock] = '\0';
-
-    // ascii_normal[scanLeftShift] = '\0';
-    // ascii_normal[scanRightShift] = '\0';
-    // ascii_normal[scanRightCtrl] = '\0';
-    // ascii_normal[scanLeftCtrl] = '\0';
-    // ascii_normal[scanDelete] = '\0';
-
-    // // editing keys
-    // ascii_normal[scanUpArrow] = '\n';
-    // ascii_normal[scanDownArrow] = '\n';
-    // ascii_normal[scanLeftArrow] = '\n';
-    // ascii_normal[scanRightArrow] = '\n';
-
-
     
+    // special cases
+    ascii_normal[scanEnter]     = '\n';
+    ascii_normal[scanBackspace] = '\b';
+    ascii_normal[scanSpace] = ' ';
+
 }
 
-// static void especialKeys(char *args){
-
-//     if (scancode)
-//     if (args){
-//         switch (*args) {
-//             case scanESC:
-//                 break;
-            
-//             case scanTab:
-
-//         };
-//     }
+void keyboardHandler(void) {
+    uint8_t scancode = inb(0x60);
+    char c = ascii_normal[scancode];
+    keyboard_buffer[buffer_head] = c;
 
 
-// }
+    buffer_head = (buffer_head + 1) % 256;
+}
 
-int main(){
-    mappingKeys();
-
-    return 0;
+char keyboard_getchar(void) {
+     // bit 0 of status register: o
+     // only read port 0x60 when keyboard has new data ready
+    if (!(inb(0x64) & 0x01)) 
+        return 0;
+    keyboardHandler();
+    if (buffer_head == buffer_tail)
+        return 0;
+    char c = keyboard_buffer[buffer_tail];
+    buffer_tail = (buffer_tail + 1) % 256;
+    return c;
 }

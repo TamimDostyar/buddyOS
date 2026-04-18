@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <ctype.h>
 enum SCAN {
     // Escape
     scanESC = 0x01,
@@ -101,12 +99,9 @@ enum SCAN {
     scanRightArrow = 0x4D,
 };
 
-static inline int isUpper(char c){ return c >= 'A' || c <= 'Z';}
-static inline int isLower(char c){ return c >= 'a' || c <= 'z';}
+static inline int isUpper(char c){ return c >= 'A' && c <= 'Z'; }
+static inline int isLower(char c){ return c >= 'a' && c <= 'z'; }
+static inline int isNumber(char c){ return c >= '0' && c <= '9'; }
 
-static inline int isNumber(char c){
-    if (!isalnum(c)){
-        return '\0';
-    }
-    return c >= '1' || c <= '9';
-}
+void keyboard_init(void);
+char keyboard_getchar(void);
