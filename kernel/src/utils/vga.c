@@ -17,9 +17,10 @@ static inline uint16_t vga_entry(char c, uint8_t color) {
     return ((uint16_t)color << 8) | (uint8_t)c;
 }
 
-void vga_init() {
+int vga_init(void) {
     vga_set_color(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
     vga_clear();
+    return 1;
 }
 
 void vga_clear() {

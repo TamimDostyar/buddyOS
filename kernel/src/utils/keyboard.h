@@ -103,6 +103,6 @@ static inline int isUpper(char c){ return c >= 'A' && c <= 'Z'; }
 static inline int isLower(char c){ return c >= 'a' && c <= 'z'; }
 static inline int isNumber(char c){ return c >= '0' && c <= '9'; }
 
-void keyboard_init(void);
+int keyboard_init(void);
 void keyboardHandler(void);
 char keyboard_getchar(void);

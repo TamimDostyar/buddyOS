@@ -24,7 +24,7 @@
 #define VGA_COLOR_LIGHT_BROWN   14
 #define VGA_COLOR_WHITE         15
 
-void vga_init(void);
+int vga_init(void);
 void vga_clear(void);
 void vga_set_color(uint8_t fg, uint8_t bg);
 void vga_putchar(char c);

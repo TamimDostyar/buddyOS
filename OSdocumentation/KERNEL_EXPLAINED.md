@@ -1458,3 +1458,7 @@ Example: `0x0241` = black background, green text, 'A'
 | `512` | Total sector size in bytes |
 
 
+Useful sources:
+    - [MaaStaar-Kernel Book](https://github.com/MaaSTaaR/539kernel-book/blob/master/Chapter%202%3A%20An%20Overview%20of%20x86%20Architecture.md)
+    - [Keyboard](https://www.millisecond.com/support/docs/current/html/language/scancodes.htm)
+    - [Keyboard scan](https://dos-help.soulsphere.org/clang.hlp/x_at_L812c.html)

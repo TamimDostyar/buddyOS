@@ -12,7 +12,7 @@ static int buffer_tail = 0;
     - so basically we need input and output for this
 */
 
-void keyboard_init(void) {
+int keyboard_init(void) {
 
     // all keys
     ascii_normal[scanA] = 'a';
@@ -54,7 +54,7 @@ void keyboard_init(void) {
     ascii_normal[scanEnter]     = '\n';
     ascii_normal[scanBackspace] = '\b';
     ascii_normal[scanSpace] = ' ';
-
+    return 1;
 }
 
 void keyboardHandler(void) {
