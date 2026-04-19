@@ -101,3 +101,60 @@ Tiny helpers for reading and writing hardware I/O ports using x86 `in`/`out` ins
 - Implement `sys_ask()` — a natural-language syscall that lets any process query the AI kernel subsystem directly
 - Replace the keyboard echo loop with BuddyShell as the first userspace process the kernel hands control to
 - Eventually route all unrecognized input through buddyGPT before falling back to a standard error
+
+---
+
+## Architecture
+
+How the kernel subsystems are arranged today, and where `kai/` and `buddyGPT` will sit.
+
+```
+  Input:  sys_ask("why is my system slow")   OR   exec("ls")
+                              │
+                              ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                        buddyOS  Kernel                          │
+  │                                                                 │
+  │  ┌──────────────────────────────────────────────────────────┐  │
+  │  │                  kai/  —  AI Subsystem  [FUTURE]          │  │
+  │  │                                                           │  │
+  │  │   ┌─────────────────────────────────────────────────┐    │  │
+  │  │   │                  buddyGPT                        │    │  │
+  │  │   │                                                  │    │  │
+  │  │   │   reads ◄─── Scheduler  (run queue, CPU usage)  │    │  │
+  │  │   │   reads ◄─── Memory Mgr (page fault counter)    │    │  │
+  │  │   │   reads ◄─── FS Index   (semantic search)       │    │  │
+  │  │   │                                                  │    │  │
+  │  │   │   generates response → routes:                   │    │  │
+  │  │   │       syscall  │  NL answer  │  network fetch    │    │  │
+  │  │   └──────────────────────────────────────────────────┘    │  │
+  │  └──────────────────────────────────────────────────────────  │  │
+  │                                                                │  │
+  │  ┌──────────────┐   ┌──────────────────┐   ┌──────────────┐  │  │
+  │  │  Scheduler   │   │   File System    │   │   Memory     │  │  │
+  │  │  PCBs        │   │   + Semantic     │   │   Manager    │  │  │
+  │  │  context sw  │   │     Index        │   │   kmalloc    │  │  │
+  │  │  round-robin │   │   inodes / dirs  │   │   paging     │  │  │
+  │  └──────────────┘   └──────────────────┘   └──────────────┘  │  │
+  │                                                                │  │
+  │  ┌──────────────────────────────────────────────────────────┐ │  │
+  │  │    IDT  ·  IRQ handlers  ·  PIC  (keyboard → IRQ1)       │ │  │
+  │  └──────────────────────────────────────────────────────────┘ │  │
+  └────────────────────────────────┬────────────────────────────--┘
+                                   │
+                                   ▼
+                           Hardware  (x86)
+                    keyboard · VGA 0xB8000 · disk
+
+
+  [FUTURE — network driver at this layer]
+
+                                   │
+                                   ▼
+                        ┌────────────────────┐
+                        │     Internet        │
+                        │  command index      │ ← buddyGPT queries here
+                        │  package repos      │   when local knowledge
+                        │  knowledge base     │   is insufficient
+                        └────────────────────┘
+```
