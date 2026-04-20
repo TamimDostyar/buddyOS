@@ -24,12 +24,14 @@ OBJCOPY      := $(CROSS_PREFIX)objcopy
 # Source directories (never written to)
 BOOT_DIR   := boot
 KERNEL_SRC := kernel/src
+ALLOC_SRC  := alloc/src
 
 # All generated output lives under build/
 BUILD_DIR      := build
 SHELL_BUILD    := $(BUILD_DIR)/shell
 BOOT_BUILD     := $(BUILD_DIR)/boot
 KERNEL_BUILD   := $(BUILD_DIR)/kernel
+ALLOC_BUILD    := $(BUILD_DIR)/alloc
 
 SHELL_BIN  := $(BUILD_DIR)/mysh
 BOOT_BIN   := $(BUILD_DIR)/boot.bin
@@ -45,9 +47,11 @@ SHELL_OBJS := $(patsubst shell/src/%.c,$(SHELL_BUILD)/%.o,$(SHELL_SRCS))
 KERNEL_ENTRY  := $(BOOT_BUILD)/entry.o
 BOOT_ASM_OBJS := $(BOOT_BUILD)/isr_stubs.o
 KERNEL_C_SRCS := $(wildcard $(KERNEL_SRC)/manager/*.c $(KERNEL_SRC)/utils/*.c)
+ALLOC_C_SRCS  := $(wildcard $(ALLOC_SRC)/*.c)
 KERNEL_OBJS   := $(KERNEL_ENTRY) \
                  $(BOOT_ASM_OBJS) \
-                 $(patsubst $(KERNEL_SRC)/%.c,$(KERNEL_BUILD)/%.o,$(KERNEL_C_SRCS))
+                 $(patsubst $(KERNEL_SRC)/%.c,$(KERNEL_BUILD)/%.o,$(KERNEL_C_SRCS)) \
+                 $(patsubst $(ALLOC_SRC)/%.c,$(ALLOC_BUILD)/%.o,$(ALLOC_C_SRCS))
 
 all: shell
 
@@ -90,11 +94,14 @@ $(BOOT_BUILD)/isr_stubs.o: $(BOOT_DIR)/isr_stubs.s | $(BOOT_BUILD)
 
 $(KERNEL_BUILD)/%.o: $(KERNEL_SRC)/%.c | $(KERNEL_BUILD)
 	mkdir -p $(dir $@)
-	$(CC_KERNEL) -m32 -ffreestanding -nostdlib -c -o $@ $<
+	$(CC_KERNEL) -m32 -ffreestanding -nostdlib -I$(ALLOC_SRC) -c -o $@ $<
+
+$(ALLOC_BUILD)/%.o: $(ALLOC_SRC)/%.c | $(ALLOC_BUILD)
+	$(CC_KERNEL) -m32 -ffreestanding -nostdlib -I$(ALLOC_SRC) -c -o $@ $<
 
 $(KERNEL_BIN): $(KERNEL_OBJS) | $(BUILD_DIR)
 	$(LD_KERNEL) -m elf_i386 -e _start -Ttext 0x1000 -o $(KERNEL_ELF) $^
 	$(OBJCOPY) -O binary $(KERNEL_ELF) $@
 
-$(BUILD_DIR) $(SHELL_BUILD) $(BOOT_BUILD) $(KERNEL_BUILD):
+$(BUILD_DIR) $(SHELL_BUILD) $(BOOT_BUILD) $(KERNEL_BUILD) $(ALLOC_BUILD):
 	mkdir -p $@
