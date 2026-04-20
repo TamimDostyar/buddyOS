@@ -1,6 +1,7 @@
 #include "heap.h"
 
 void *kmalloc(size_t size){
+    if (size == 0) return 0;
 
     block_header_t *cur = (block_header_t*) HEAP_START;
     
@@ -23,10 +24,30 @@ void *kmalloc(size_t size){
     }
     return 0;
 }
+//[A: free] -> [B: used] -> [C: free]
+// this is the idea i am thinking with merging
+//[A: free] -> [B+C: free]
+// merging basically does next
+// what I am thinking to do is every time we free the free function
+// calls merge to merge back to heap but we need to get that from the main memory address
+
+void merge() {
+    block_header_t *hdr = (block_header_t*) HEAP_START;
+    while (hdr && hdr->next) {
+        if (hdr->isFree && hdr->next->isFree) {
+            hdr->size = hdr->size + sizeof(block_header_t) + hdr->next->size;
+            hdr->next = hdr->next->next;
+        } else {
+            hdr = hdr->next;
+        }
+    }
+}
 
 void kfree(void *ptr){
-    if (!ptr) return; // if it is not a pointer then its invalid
-    if (ptr == NULL) return; // if it is null then invalid
+    if (!ptr) return; 
+    if (ptr == NULL) return;
     block_header_t *hdr = (block_header_t*) ptr-1;
     hdr->isFree=1;
+    merge();
 }
+
