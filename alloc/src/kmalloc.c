@@ -44,7 +44,7 @@ void merge() {
 }
 
 void kfree(void *ptr){
-    if (!ptr) return; 
+    if (!ptr) return;
     block_header_t *hdr = (block_header_t*) ptr-1;
     hdr->isFree=1;
     merge();

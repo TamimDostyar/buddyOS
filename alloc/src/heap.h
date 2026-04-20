@@ -7,7 +7,6 @@
 
 
 #define HEAP_SIZE (1024 * 1024)
-
 //below needs to get commented and uncomment line 13-18 for testing purpose!!!
 #define HEAP_START 0x200000
 
