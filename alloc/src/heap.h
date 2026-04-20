@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define HEAP_SIZE (1024 * 1024);
+#define HEAP_SIZE (1024 * 1024)
 #define HEAP_START 0x200000
 
 typedef struct block_header{
