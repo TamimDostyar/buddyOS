@@ -5,6 +5,7 @@ void *kmalloc(size_t size){
     block_header_t *cur = (block_header_t*) HEAP_START;
     
     while (cur){
+        // for first fit in 
         if (cur->isFree && cur->size >= size){
             // for larger cases we need to still leave size
             if (cur->size >= size + sizeof(block_header_t) + 1){
@@ -16,16 +17,16 @@ void *kmalloc(size_t size){
                 cur->next = new_block;
             }
             cur->isFree = 0;
-            return (void *) (cur +1);   
+            return (void *)(cur + 1);
         }
         cur = cur->next;
     }
     return 0;
 }
 
-
 void kfree(void *ptr){
-    if (!ptr) return;
+    if (!ptr) return; // if it is not a pointer then its invalid
+    if (ptr == NULL) return; // if it is null then invalid
     block_header_t *hdr = (block_header_t*) ptr-1;
     hdr->isFree=1;
 }
