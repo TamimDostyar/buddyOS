@@ -3,7 +3,7 @@
 
 Pid_t pid_t;
 
-static inline int fork(Pid_t *pid_t) {
+static inline int fork(Pid_t *pid_t, int parentPID) {
 
     if (pid_t->processTable == NULL) {
         pid_t->processTable = kmalloc(sizeof(Process) * MAX_PROCESSES);
@@ -18,9 +18,9 @@ static inline int fork(Pid_t *pid_t) {
         if (pid_t->slotsTaken[i] == 0) {
             currentSlot = i;
             pid_t->slotsTaken[i] = 1;
-            
-            // Initialize the process
+        
             pid_t->processTable[i].processNumber = i;
+            pid_t->processTable[i].parentPID = parentPID;
             pid_t->processTable[i].processState = PROCESS_RUNNING;
             
             break;               
@@ -28,51 +28,50 @@ static inline int fork(Pid_t *pid_t) {
     }
 
     if (currentSlot == -1) {
-        return -1; // no free PID slots available
+        return -1;
     }
 
     return currentSlot;
 }
 
 
-static inline void exit(){
-    int currentStage = pid_t.processState;
-    int currentPID = pid_t.processNumber;
-
-
-    // if it is running then fine
-    if (currentStage == 0){
-        continue;
-    } else if( currentStage == 1){
-        // wait like a few seconds if the program stays then terminate
-        wait(2000);
-        killPID(current_PID);
-        // return 0;
-    };
-    // assiging to 0 that stage meaing it is running
-    int currentStage = 0;
+static inline int exit_process(Pid_t *manager, int pid){
+    if (pid < 2 || pid >= MAX_PROCESSES) {
+        return -1;  // Invalid PID
+    }
+    
+    if (manager->slotsTaken[pid] == 0) {
+        return -1;
+    }
+    
+    manager->slotsTaken[pid] = 0;
+    
+    manager->processTable[pid].processState = PROCESS_FREE;
+    manager->processTable[pid].processNumber = 0;
+    
+    return 0;
 }
 
-
-
-// simply exist
-static void killPID(int pid){
-    exit(pid);
+static inline int wait(Pid_t *manager, int parentPID){
+    int childRunning = 1;
+    
+    while (childRunning) {
+        childRunning = 0;        
+        for (int i = 2; i < MAX_PROCESSES; i++) {
+            // Check if slot is taken, is a child, and still running
+            if (manager->slotsTaken[i] == 1 && 
+                manager->processTable[i].parentPID == parentPID &&
+                manager->processTable[i].processState == PROCESS_RUNNING) {
+                childRunning = 1;
+                break;  // Found a running child, stop checking
+            }
+        }
+        
+        // If children still running, sleep then check again
+        if (childRunning) {
+            sleep(1);
+        }
+    }
+    return 0;
 }
 
-// sleep
-int wait(int seconds){
-    sleep(seconds);
-}
-
-static inline void exec(int process){
-    // since processNumber gets replaced we can exchange?
-    pid_t.processNumber = process;
-
-}
-
-
-// int main(){
-//     wait();
-//     return 0;
-// }

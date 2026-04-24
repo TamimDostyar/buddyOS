@@ -9,8 +9,9 @@
 
 // Individual process data
 typedef struct {
-    int processNumber;    // PID
-    int processState;     // RUNNING, WAITING, STOPPED, etc.
+    int processNumber;
+    int parentPID;
+    int processState;
 } Process;
 
 // Process manager
