@@ -1,7 +1,8 @@
-#include "../utils/idt.h"
-#include "../utils/keyboard.h"
-#include "../utils/vga.h"
+#include "idt.h"
+#include "keyboard.h"
+#include "vga.h"
 #include "heap.h"
+#include "file.h"
 
 void kmain(void) {
 
@@ -20,6 +21,9 @@ void kmain(void) {
   vga_write("\n");
   vga_lock_cursor();
 
+  main();
+  vga_lock_cursor();
+  
   for (;;) {
     char c = keyboard_getchar();
     if (c != 0) {

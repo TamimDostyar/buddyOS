@@ -1,37 +1,36 @@
+#include <stdlib.h>
+
 #ifndef SUPERBLOCKS
 #define SUPERBLOCKS
 
-typedef struct {
 
-    // identity
+typedef struct __super_block_t{
+    // identity  and total number for partition
     uint32_t magic;
-    uint32_t version;
 
-    // size based on geo
-    uint64_t block_size;
-    uint64_t total_block;
-    uint64_t total_inode;
+    uint32_t sector_count;
+    uint32_t inode_count;
 
-    // free space
-    uint64_t free_block;
-    uint64_t free_inode;
+    // total size from partition
+    uint32_t partition_lba_base;
+    uint32_t block_bitmap_lba;
+    uint32_t block_bitmap_sectors;
 
-    // root of the system
+    // bitmap location
 
-    uint32_t root;
-    // location
-    uint64_t inode_table_start;   // Block where inode table begins
-    uint64_t data_blocks_start;   // Block where data region begins
-    uint64_t block_bitmap_start;  // Block where free-block bitmap lives
-    uint64_t inode_bitmap_start;
-    
-    // status
-    uint8_t  fs_state;      
-    uint32_t mount_count;    
-    uint64_t last_mount_time;
-    uint64_t last_write_time;
+    // lba is the logical block address
+    // and inode is the datastructure where it stores things like read/write modification date....
+    uint32_t inode_bitmap_lba;
+    uint32_t inode_bitmap_sectors;
+    uint32_t inode_table_lba;
+    uint32_t inode_table_sects;
 
-} Blocks;
+    uint32_t data_start_lba;
+    uint32_t root_inode_no;
+    uint32_t dir_entry_size;
 
 
+} __attribute__((packed)) super_block_t;
+
+// the logic is inspired from JackOS
 #endif

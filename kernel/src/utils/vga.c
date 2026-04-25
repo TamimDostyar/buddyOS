@@ -101,19 +101,3 @@ void vga_write(const char *str) {
         vga_putchar(str[i]);
     }
 }
-
-// void vgaDisplayMemory(unsigned char *str) {
-//     unsigned long addr = (unsigned long)str;
-//     char hex[] = "0123456789abcdef";
-//     char buff[17];
-//     buff[16] = '\0';
-
-//     for (int i = 15; i >= 0; i--) {
-//         buff[i] = hex[addr & 0xF];
-//         addr >>= 4;
-//     }
-
-//     for (int i = 0; buff[i] != '\0'; i++) {
-//         vga_putchar(buff[i]);
-//     }
-// }
