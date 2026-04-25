@@ -56,16 +56,22 @@ void vga_putchar(char c) {
     if (c == '\n') {
         cursor_row++;
         cursor_col = 0;
+        // just protect to go again in the above row.
+        protected_row = cursor_row;
+        protected_col = cursor_col;
     } else if(c == '\b'){
         int next_col = cursor_col - 1;
         int next_row = cursor_row;
+
         if (next_col < 0) {
             next_row--;
             next_col = VGA_WIDTH - 1;
         }
+
         if (next_row < protected_row || (next_row == protected_row && next_col < protected_col)) {
             return;
         }
+
         cursor_col = next_col;
         cursor_row = next_row;
         VGA_MEMORY[cursor_row * VGA_WIDTH + cursor_col] = vga_entry(' ', vga_current_color);
