@@ -4,6 +4,8 @@
 #define SUPERBLOCKS
 
 
+// this is basically the table of content
+
 typedef struct __super_block_t{
     // identity  and total number for partition
     uint32_t magic;

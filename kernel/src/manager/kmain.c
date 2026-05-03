@@ -2,7 +2,7 @@
 #include "keyboard.h"
 #include "vga.h"
 #include "heap.h"
-#include "file.h"
+#include "fs.h"
 
 void kmain(void) {
 
@@ -10,6 +10,10 @@ void kmain(void) {
   int keyboardOutput = keyboard_init();
   int idtOutput = idt_install();
 
+  // test
+  mount();
+  
+  
   // heap
   heap_init();
   int *memory = kmalloc(sizeof(memory));
@@ -19,9 +23,6 @@ void kmain(void) {
   __asm__ volatile("sti");
   vga_write("Kernell is working and running successfully\n");
   vga_write("\n");
-  vga_lock_cursor();
-
-  main();
   vga_lock_cursor();
   
   for (;;) {
