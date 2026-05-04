@@ -1,12 +1,14 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+// #include <stdio.h>
+// #include <stdlib.h>
+#include "string.h"
+#include "vga.h"
 #include "parser.h"
 #include "../builtin/builtins.h"
+#include "debug.h"
 
 void parser(char *input) {
     if (input == NULL || strlen(input) == 0) {
-        printf("Error: empty input\n");
+        kprintf_str("Error: empty input\n");
         return;
     }
 

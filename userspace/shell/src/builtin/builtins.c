@@ -1,6 +1,8 @@
-#include <stdio.h>
+// #include <stdio.h>
+#include "vga.h"
 #include "builtins.h"
-#include <string.h>
+#include "string.h"
+#include "debug.h"
 #include "../executer/executer.h"
 
 typedef struct {
@@ -16,14 +18,17 @@ builtin_t builtins[] = {
     {"pwd", pathDirectory, "To see your file path"},
     {"ls", listDirectory, "To list your files in the directory"},
     {"clear", clearShell, "To clear shell"},
-    {NULL, NULL}
+    {NULL, NULL, NULL}
 };
 
 int is_builtin(char *cmd, char *args){
     // for help function
     if (cmd != NULL && strcmp(cmd, "help") == 0) {
         for (int i = 0; builtins[i].name != NULL; i++) {
-            printf("%s: %s\n", builtins[i].name, builtins[i].description);
+            kprintf_str(builtins[i].name);
+            kprintf_str(": ");
+            kprintf_str(builtins[i].description);
+            kprintf_str("\n");
         }
         (void)args;
         return 1;
@@ -36,13 +41,10 @@ int is_builtin(char *cmd, char *args){
                 builtins[i].func(args);
                 return 1;
             }
-            builtins[i].func(cmd);
+            builtins[i].func(args); // Using args instead of cmd as argument
             return 1;
         } 
-        else if (strstr(builtins[i].name, cmd) != 0){
-            printf("Not a valid command -> type help\n");
-        }
-
     }
+    kprintf_str("Not a valid command -> type help\n");
     return 0;
 }

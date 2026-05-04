@@ -86,6 +86,8 @@ void fs_mount(void){
         } else {
             kprintf_str("Format successful!\n");
         }
+    } else{
+        kprintf_str("Mounting failed");
     }
 
     if (fs.super.block_size != BLOCK_SIZE ||

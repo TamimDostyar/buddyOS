@@ -11,7 +11,7 @@
 
 CC       ?= cc
 CFLAGS   ?= -Wall -Wextra -std=c11 -g
-CPPFLAGS ?= -Ishell/src/builtin -Ishell/src/executer -Ishell/src/history -Ishell/src/parser -Ishell/src/manager
+CPPFLAGS ?= -Iuserspace/shell/src/builtin -Iuserspace/shell/src/executer -Iuserspace/shell/src/history -Iuserspace/shell/src/parser -Iuserspace/shell/src/manager
 LDFLAGS  ?=
 NASM     ?= nasm
 QEMU     ?= qemu-system-i386
@@ -31,7 +31,12 @@ FS_SRC     := fs/src
 KERNEL_INCLUDES := -I$(KERNEL_SRC)/utils \
                    -I$(KERNEL_SRC)/manager \
                    -I$(ALLOC_SRC) \
-                   -I$(FS_SRC)
+                   -I$(FS_SRC) \
+                   -Iuserspace/shell/src/builtin \
+                   -Iuserspace/shell/src/executer \
+                   -Iuserspace/shell/src/history \
+                   -Iuserspace/shell/src/parser \
+                   -Iuserspace/shell/src/manager
 
 # Kernel compiler flags
 KERNEL_CFLAGS := -m32 -ffreestanding -nostdlib
@@ -50,9 +55,9 @@ KERNEL_ELF := $(BUILD_DIR)/kernel.elf
 KERNEL_BIN := $(BUILD_DIR)/kernel.bin
 OS_IMAGE   := $(BUILD_DIR)/os_image.bin
 
-# Shell sources
-SHELL_SRCS := $(sort $(wildcard shell/src/*/*.c))
-SHELL_OBJS := $(patsubst shell/src/%.c,$(SHELL_BUILD)/%.o,$(SHELL_SRCS))
+# Shell sources (moved into kernel build)
+SHELL_SRCS := $(sort $(wildcard userspace/shell/src/*/*.c) userspace/shell/src/main.c)
+SHELL_OBJS := $(patsubst userspace/shell/src/%.c,$(SHELL_BUILD)/%.o,$(SHELL_SRCS))
 
 # Kernel objects
 KERNEL_ENTRY  := $(BOOT_BUILD)/entry.o
@@ -64,7 +69,8 @@ KERNEL_OBJS   := $(KERNEL_ENTRY) \
                  $(BOOT_ASM_OBJS) \
                  $(patsubst $(KERNEL_SRC)/%.c,$(KERNEL_BUILD)/%.o,$(KERNEL_C_SRCS)) \
                  $(patsubst $(ALLOC_SRC)/%.c,$(ALLOC_BUILD)/%.o,$(ALLOC_C_SRCS)) \
-                 $(patsubst $(FS_SRC)/%.c,$(FS_BUILD)/%.o,$(FS_C_SRCS))
+                 $(patsubst $(FS_SRC)/%.c,$(FS_BUILD)/%.o,$(FS_C_SRCS)) \
+                 $(SHELL_OBJS)
 
 all: shell
 
@@ -77,9 +83,9 @@ kernel: $(KERNEL_BIN)
 os-image: boot kernel
 	cat $(BOOT_BIN) $(KERNEL_BIN) > $(OS_IMAGE)
 	@SIZE=$$(wc -c < $(OS_IMAGE)); \
-	  if [ $$SIZE -lt 8704 ]; then \
-	    dd if=/dev/zero bs=1 count=$$((8704 - $$SIZE)) >> $(OS_IMAGE) 2>/dev/null; \
-	  fi
+          if [ $$SIZE -lt 30000 ]; then \
+            dd if=/dev/zero bs=1 count=$$((30000 - $$SIZE)) >> $(OS_IMAGE) 2>/dev/null; \
+          fi
 
 run: os-image
 	$(QEMU) -drive format=raw,file=$(OS_IMAGE)
@@ -92,9 +98,9 @@ clean:
 $(SHELL_BIN): $(SHELL_OBJS) | $(BUILD_DIR)
 	$(CC) $(LDFLAGS) -o $@ $^
 
-$(SHELL_BUILD)/%.o: shell/src/%.c | $(SHELL_BUILD)
+$(SHELL_BUILD)/%.o: userspace/shell/src/%.c | $(SHELL_BUILD)
 	mkdir -p $(dir $@)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+	$(CC_KERNEL) $(KERNEL_CFLAGS) $(KERNEL_INCLUDES) -c -o $@ $<
 
 $(BOOT_BIN): $(BOOT_DIR)/boot.asm | $(BUILD_DIR)
 	$(NASM) -f bin $< -o $@

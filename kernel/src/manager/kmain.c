@@ -3,16 +3,18 @@
 #include "vga.h"
 #include "heap.h"
 #include "fs.h"
+#include "debug.h"
+
+extern void shell_main(void);
 
 void kmain(void) {
 
   int vgaOutput = vga_init();
   int keyboardOutput = keyboard_init();
   int idtOutput = idt_install();
-
-  // test
+  // mount file system
   fs_mount();
-  
+  kprintf_str("mounting!\n");
   
   // heap
   heap_init();
@@ -25,6 +27,9 @@ void kmain(void) {
   vga_write("\n");
   vga_lock_cursor();
   
+  shell_main();
+  
+  // fallback if shell exits
   for (;;) {
     char c = keyboard_getchar();
     if (c != 0) {

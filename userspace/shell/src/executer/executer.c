@@ -1,56 +1,37 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/syslimits.h>
-#include <unistd.h>
-#include <string.h>
-
-#include <dirent.h>
-#include <errno.h>
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <unistd.h>
+#include "string.h"
+#include "vga.h"
+#include "fs.h"
+#include "debug.h"
 
 
 void quitApplication(char *args){
     (void)args;
-    printf("Exiting...\n");
-    exit(0);
+    kprintf_str("Exiting is not supported in kernel mode...\n");
 }
+
 void pathDirectory(char *args){
     (void)args;
-    char cwd[PATH_MAX];
-    getcwd(cwd, sizeof(cwd) );
-    printf("%s\n", cwd);
+    // Just print root since we don't have deeply nested dirs yet
+    kprintf_str("/\n");
 }
 
 void computerDirectory(char *args){
     char *path = args;
-    if (path == NULL || path[0] == '\0') {
-        path = getenv("HOME");
-    }
-
-    if (chdir(path) != 0){
-        printf("cd: %s: %s\n", path, strerror(errno));
-    }
-
-    if (strcmp(path, "..") == 0){
-        printf("Moving a folder back %s\n", path);
-    }
-    // printf("Type pwd to see your current path\n");
-
+    (void)path;
+    kprintf_str("CD not supported yet by kernel FS overlay\n");
 }
 
 void listDirectory(char *args){
     (void)args;
-    DIR *d;
-    struct dirent *dir;
-    d = opendir(".");
-    if (d){
-        while ((dir = readdir(d)) != NULL){
-            printf("%s\n", dir->d_name);
-        }
-        closedir(d);
-    }
+    // Link directly to our kernel filesystem
+    fs_list();
+    kprintf_str("\n");
 }
 
 void clearShell(char *args){
     (void)args;
-    printf("\ec");
+    vga_clear();
 }
