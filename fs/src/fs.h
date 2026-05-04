@@ -14,7 +14,7 @@ typedef struct fileSystemState_t{
 
 }fileSystemState_t;
 
-// function prototypes
+// function prototypes!
 void fs_mount(void);
 int fs_create(const char* name, uint32_t size, const void* data);
 int fs_read(const char* name, void* buffer);
