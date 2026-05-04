@@ -38,9 +38,8 @@ void fs_mount(void){
     Directory_t root_dir;
     disk_read_block(fs.super.dir_start_block, &root_dir);
     fs.directory = root_dir.entries;
-
 }
 
-// void fs_unmount(void){
-
-// }
+void fs_unmount(void){
+    fs.directory = NULL;
+}
