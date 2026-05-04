@@ -6,6 +6,7 @@
 #define MAX_FILE_ENTRY 32
 #define BLOCK_SIZE 512
 #define MAX_DIR_ENTRIES 16
+#define FS_MAGIC 0x12345678
 
 typedef struct{
     char f_name[MAX_FILE_ENTRY];

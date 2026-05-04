@@ -1,6 +1,8 @@
 #ifndef SIMPLE_SUPERBLOCK_H
 #define SIMPLE_SUPERBLOCK_H
 
+#include <stdint.h>
+
 typedef struct{
     uint32_t magic;          
     uint32_t block_size;     

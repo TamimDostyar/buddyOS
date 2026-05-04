@@ -11,7 +11,7 @@ void kmain(void) {
   int idtOutput = idt_install();
 
   // test
-  mount();
+  fs_mount();
   
   
   // heap
