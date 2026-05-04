@@ -43,3 +43,12 @@ void fs_mount(void){
 void fs_unmount(void){
     fs.directory = NULL;
 }
+
+void fs_list(void){
+    for (int i = 0; i < MAX_FILE_ENTRY; i ++){
+        if (fs.directory[i].used){
+            kprintf_str("Directory that is taken: ");
+            kprintf_int(i);
+        }
+    }
+}
