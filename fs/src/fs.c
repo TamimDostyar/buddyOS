@@ -46,6 +46,7 @@ static void *memcpy(void *dest, const void *src, size_t n) {
     return dest;
 }
 
+
 void disk_read_block(int block_number, void *buffer){
     int offset = block_number * BLOCK_SIZE;
     memcpy(buffer, &disk_data[offset], BLOCK_SIZE);
