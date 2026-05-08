@@ -1,6 +1,5 @@
-#include <stdint.h>
 #include "vga.h"
-
+#include "inb.h"
 
 // 0xB8000 physcall memory address for the vga
 static uint16_t * const VGA_MEMORY = (uint16_t*)0xB8000;
@@ -14,16 +13,37 @@ static inline uint8_t vga_make_color(uint8_t fg, uint8_t bg) {
     return (bg << 4) | (fg & 0x0F);
 }
 
+
+void vga_set_cursor_pos(int col, int row) {
+    uint16_t pos = row * VGA_WIDTH + col;
+
+    outb(0x3D4, 0x0F);
+    outb(0x3D5, (uint8_t)(pos & 0xFF));
+
+    outb(0x3D4, 0x0E);
+    outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
+}
+
+// void disable_blinker(){
+//     //select the port
+//     outb(0x3D4, 0x0A);
+//     // Set bit 5 (cursor disable bit)
+//     outb(0x3D5, 0x20);
+// }
+
+
 //helper get current 16-bit value for a character
 static inline uint16_t vga_entry(char c, uint8_t color) {
     return ((uint16_t)color << 8) | (uint8_t)c;
 }
+
 
 int vga_init(void) {
     vga_set_color(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
     vga_clear();
     return 1;
 }
+
 
 void vga_clear() {
     for (int row = 0; row < VGA_HEIGHT; row++) {
@@ -88,6 +108,7 @@ void vga_putchar(char c) {
     if (cursor_row >= VGA_HEIGHT) {
         vga_scroll();
     }
+    vga_set_cursor_pos(cursor_col, cursor_row);
 }
 
 void vga_lock_cursor(void) {
