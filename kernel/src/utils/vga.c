@@ -79,6 +79,7 @@ void vga_putchar(char c) {
         // just protect to go again in the above row.
         protected_row = cursor_row;
         protected_col = cursor_col;
+
     } else if(c == '\b'){
         int next_col = cursor_col - 1;
         int next_row = cursor_row;
@@ -95,6 +96,7 @@ void vga_putchar(char c) {
         cursor_col = next_col;
         cursor_row = next_row;
         VGA_MEMORY[cursor_row * VGA_WIDTH + cursor_col] = vga_entry(' ', vga_current_color);
+
     }
     
     else {
