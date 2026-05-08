@@ -23,6 +23,7 @@
 #define VGA_COLOR_LIGHT_MAGENTA 13
 #define VGA_COLOR_LIGHT_BROWN   14
 #define VGA_COLOR_WHITE         15
+extern int system_exist;
 
 int vga_init(void);
 void vga_clear(void);
@@ -30,5 +31,5 @@ void vga_set_color(uint8_t fg, uint8_t bg);
 void vga_putchar(char c);
 void vga_write(const char *str);
 void vga_lock_cursor(void);
-
+void quit_terminal(void);
 #endif

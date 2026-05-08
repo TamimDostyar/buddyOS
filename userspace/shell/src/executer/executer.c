@@ -1,6 +1,3 @@
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <unistd.h>
 #include "string.h"
 #include "vga.h"
 #include "fs.h"
@@ -9,7 +6,7 @@
 
 void quitApplication(char *args){
     (void)args;
-    kprintf_str("Exiting is not supported in kernel mode...\n");
+    quit_terminal();   
 }
 
 void pathDirectory(char *args){

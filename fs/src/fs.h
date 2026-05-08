@@ -31,6 +31,7 @@ int fs_create(const char* name, unsigned int size, const void* data);
 int fs_read(const char* name, void* buffer);
 int fs_delete(const char* name);
 void fs_list(void);
+// int name_equals(const char *a, const char *b);
 
 #endif
 

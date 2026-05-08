@@ -13,7 +13,7 @@ typedef struct {
 
 
 builtin_t builtins[] = {
-    {"exit", quitApplication, "To exit shell"},
+    {"exit", quitApplication, "To exit shells"},
     {"cd", computerDirectory, "To move to a directory"},
     {"pwd", pathDirectory, "To see your file path"},
     {"ls", listDirectory, "To list your files in the directory"},

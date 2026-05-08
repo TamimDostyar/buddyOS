@@ -4,6 +4,8 @@
 #include "heap.h"
 #include "fs.h"
 #include "debug.h"
+#include "string.h"
+
 
 extern void shell_main(void);
 
@@ -30,10 +32,18 @@ void kmain(void) {
   shell_main();
   
   // fallback if shell exits
-  for (;;) {
-    char c = keyboard_getchar();
-    if (c != 0) {
-      vga_putchar(c);
+  char c = keyboard_getchar();
+  while (c){
+    if (system_exist != 0){
+      if (c != 0){
+        vga_putchar(c);
+      }
+
     }
+    break;
   }
+  // for (;;) {
+
+
+  // }
 }

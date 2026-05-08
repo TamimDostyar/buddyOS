@@ -1,6 +1,6 @@
 #include "idt.h"
 #include "inb.h"
-
+#include "stdint.h"
 struct idt_entry idt[256];
 struct idt_ptr idtp;
 

@@ -1,5 +1,6 @@
 #include "keyboard.h"
 #include "inb.h"
+#include "stdint.h"
 
 char ascii_normal[256] = {0};
 static char keyboard_buffer[256];

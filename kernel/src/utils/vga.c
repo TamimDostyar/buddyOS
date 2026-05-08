@@ -1,5 +1,8 @@
 #include "vga.h"
 #include "inb.h"
+#include "debug.h"
+
+int system_exist = 1;
 
 // 0xB8000 physcall memory address for the vga
 static uint16_t * const VGA_MEMORY = (uint16_t*)0xB8000;
@@ -22,6 +25,13 @@ void vga_set_cursor_pos(int col, int row) {
 
     outb(0x3D4, 0x0E);
     outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
+}
+
+void quit_terminal(void){
+    system_exist = 0;
+    outb(0x501, 0x00);
+    kprintf_int(system_exist);
+    kprintf_str("\n");
 }
 
 // void disable_blinker(){
