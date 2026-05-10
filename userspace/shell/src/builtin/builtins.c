@@ -5,6 +5,7 @@
 #include "debug.h"
 #include "../executer/executer.h"
 #include "../history/history.h"
+#include "session.h"
 
 typedef struct {
     char *name;
@@ -18,10 +19,28 @@ builtin_t builtins[] = {
     {"cd", computerDirectory, "To move to a directory"},
     {"pwd", pathDirectory, "To see your file path"},
     {"ls", listDirectory, "To list your files in the directory"},
+    {"whoami", whoAmI, "To print the current session user"},
     {"clear", clearShell, "To clear shell"},
     {"history", history, "To show command history"},
     {NULL, NULL, NULL}
 };
+
+void whoAmI(char *args){
+    (void)args;
+
+    if (session_is_root()) {
+        kprintf_str("root\n");
+        return;
+    }
+
+    if (session_is_authenticated()) {
+        kprintf_str(session_username());
+        kprintf_str("\n");
+        return;
+    }
+
+    kprintf_str("guest\n");
+}
 
 int is_builtin(char *cmd, char *args){
     // for help function

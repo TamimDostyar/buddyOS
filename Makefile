@@ -1,7 +1,7 @@
 # BuddyOS — top-level build
 #
 # Targets:
-#   all         : build the shell (default)
+#   all         : build the bootable image (default)
 #   os-image    : build the OS bootable image
 #   run         : build and run in QEMU
 #   shell       : build the userspace shell
@@ -72,7 +72,7 @@ KERNEL_OBJS   := $(KERNEL_ENTRY) \
                  $(patsubst $(FS_SRC)/%.c,$(FS_BUILD)/%.o,$(FS_C_SRCS)) \
                  $(SHELL_OBJS)
 
-all: shell
+all: os-image
 
 shell: $(SHELL_BIN)
 
@@ -96,7 +96,8 @@ clean:
 .PHONY: all shell boot kernel os-image run clean
 
 $(SHELL_BIN): $(SHELL_OBJS) | $(BUILD_DIR)
-	$(CC) $(LDFLAGS) -o $@ $^
+	@echo "Shell sources are linked into the kernel image; build 'kernel' or 'os-image' for a runnable artifact."
+	@touch $@
 
 $(SHELL_BUILD)/%.o: userspace/shell/src/%.c | $(SHELL_BUILD)
 	mkdir -p $(dir $@)
