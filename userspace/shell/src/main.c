@@ -3,8 +3,7 @@
 #include "parser/parser.h"
 #include "vga.h"
 #include "keyboard.h"
-
-// #include "history.h"
+#include "history/history.h"
 
 void shell_main(void) {
     char input[1024];
@@ -37,7 +36,8 @@ void shell_main(void) {
             }
         }
         
-        if (strlen(input) > 0) {
+        if (input[0] != '\0') {
+            store_history(input);
             parser(input);
         }
     }

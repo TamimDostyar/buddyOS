@@ -4,6 +4,7 @@
 #include "string.h"
 #include "debug.h"
 #include "../executer/executer.h"
+#include "../history/history.h"
 
 typedef struct {
     char *name;
@@ -18,6 +19,7 @@ builtin_t builtins[] = {
     {"pwd", pathDirectory, "To see your file path"},
     {"ls", listDirectory, "To list your files in the directory"},
     {"clear", clearShell, "To clear shell"},
+    {"history", history, "To show command history"},
     {NULL, NULL, NULL}
 };
 
