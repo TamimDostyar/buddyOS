@@ -4,13 +4,26 @@
 #include "vga.h"
 #include "keyboard.h"
 #include "history/history.h"
+#include "session.h"
+
+static void write_prompt(void) {
+    vga_write("[");
+    if (session_is_root()) {
+        vga_write("root");
+    } else if (session_is_authenticated()) {
+        vga_write(session_username());
+    } else {
+        vga_write("guest");
+    }
+    vga_write("@buddyOS] <OS>: ");
+}
 
 void shell_main(void) {
     char input[1024];
     
     // condition is true 1 = true
     while (1) {
-        vga_write("<OS>: ");
+        write_prompt();
         
         int idx = 0;
         while (1) {
