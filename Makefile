@@ -29,14 +29,14 @@ FS_SRC     := fs/src
 
 # Kernel include paths - used by all kernel compilation (defined AFTER source dirs)
 KERNEL_INCLUDES := -I$(KERNEL_SRC)/utils \
-                   -I$(KERNEL_SRC)/manager \
-                   -I$(ALLOC_SRC) \
-                   -I$(FS_SRC) \
-                   -Iuserspace/shell/src/builtin \
-                   -Iuserspace/shell/src/executer \
-                   -Iuserspace/shell/src/history \
-                   -Iuserspace/shell/src/parser \
-                   -Iuserspace/shell/src/manager
+	-I$(KERNEL_SRC)/manager \
+	-I$(ALLOC_SRC) \
+	-I$(FS_SRC) \
+	-Iuserspace/shell/src/builtin \
+	-Iuserspace/shell/src/executer \
+	-Iuserspace/shell/src/history \
+	-Iuserspace/shell/src/parser \
+	-Iuserspace/shell/src/manager
 
 # Kernel compiler flags
 KERNEL_CFLAGS := -m32 -ffreestanding -nostdlib
@@ -66,11 +66,11 @@ KERNEL_C_SRCS := $(wildcard $(KERNEL_SRC)/manager/*.c $(KERNEL_SRC)/utils/*.c)
 ALLOC_C_SRCS  := $(wildcard $(ALLOC_SRC)/*.c)
 FS_C_SRCS     := $(wildcard $(FS_SRC)/*.c)
 KERNEL_OBJS   := $(KERNEL_ENTRY) \
-                 $(BOOT_ASM_OBJS) \
-                 $(patsubst $(KERNEL_SRC)/%.c,$(KERNEL_BUILD)/%.o,$(KERNEL_C_SRCS)) \
-                 $(patsubst $(ALLOC_SRC)/%.c,$(ALLOC_BUILD)/%.o,$(ALLOC_C_SRCS)) \
-                 $(patsubst $(FS_SRC)/%.c,$(FS_BUILD)/%.o,$(FS_C_SRCS)) \
-                 $(SHELL_OBJS)
+	$(BOOT_ASM_OBJS) \
+	$(patsubst $(KERNEL_SRC)/%.c,$(KERNEL_BUILD)/%.o,$(KERNEL_C_SRCS)) \
+	$(patsubst $(ALLOC_SRC)/%.c,$(ALLOC_BUILD)/%.o,$(ALLOC_C_SRCS)) \
+	$(patsubst $(FS_SRC)/%.c,$(FS_BUILD)/%.o,$(FS_C_SRCS)) \
+	$(SHELL_OBJS)
 
 all: os-image
 
@@ -83,9 +83,9 @@ kernel: $(KERNEL_BIN)
 os-image: boot kernel
 	cat $(BOOT_BIN) $(KERNEL_BIN) > $(OS_IMAGE)
 	@SIZE=$$(wc -c < $(OS_IMAGE)); \
-          if [ $$SIZE -lt 30000 ]; then \
-            dd if=/dev/zero bs=1 count=$$((30000 - $$SIZE)) >> $(OS_IMAGE) 2>/dev/null; \
-          fi
+	if [ $$SIZE -lt 30000 ]; then \
+	dd if=/dev/zero bs=1 count=$$((30000 - $$SIZE)) >> $(OS_IMAGE) 2>/dev/null; \
+	fi
 
 run: os-image
 	$(QEMU) -drive format=raw,file=$(OS_IMAGE)
