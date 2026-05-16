@@ -23,7 +23,7 @@ start:
 
 load_kernel:
     mov ah, 0x02            ; BIOS function: read sectors
-    mov al, 50              ; Number of sectors to read (kernel ~20KB, 41 sectors)
+    mov al, 50              ; sectors to read; bump if kernel grows past ~25KB
     mov ch, 0               ; Cylinder 0
     mov cl, 2               ; Sector 2 (sector 1 is bootloader itself)
     mov dh, 0               ; Head 0

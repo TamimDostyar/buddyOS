@@ -88,14 +88,16 @@ boot: $(BOOT_BIN)
 kernel: $(KERNEL_BIN)
 
 os-image: boot kernel
+	@# boot.asm reads 50 sectors; kernel.bin must fit in 49 of them (1 is boot itself).
 	@KSIZE=$$(wc -c < $(KERNEL_BIN)); \
 	if [ $$KSIZE -gt 25088 ]; then \
-	  echo "WARNING: kernel.bin is $$KSIZE bytes (>25088). Boot reads 50 sectors total. Bump 'mov al' in boot.asm."; \
+	  echo "WARNING: kernel.bin is $$KSIZE bytes; bump 'mov al' in boot.asm."; \
 	fi
 	cat $(BOOT_BIN) $(KERNEL_BIN) > $(OS_IMAGE)
+	@# Pad past 50 sectors so the BIOS read doesn't fall off the end.
 	@SIZE=$$(wc -c < $(OS_IMAGE)); \
 	if [ $$SIZE -lt 32256 ]; then \
-	dd if=/dev/zero bs=1 count=$$((32256 - $$SIZE)) >> $(OS_IMAGE) 2>/dev/null; \
+	  dd if=/dev/zero bs=1 count=$$((32256 - $$SIZE)) >> $(OS_IMAGE) 2>/dev/null; \
 	fi
 
 run: os-image

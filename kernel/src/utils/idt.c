@@ -14,17 +14,12 @@ extern void isr20(); extern void isr21(); extern void isr22(); extern void isr23
 extern void isr24(); extern void isr25(); extern void isr26(); extern void isr27();
 extern void isr28(); extern void isr29(); extern void isr30(); extern void isr31();
 
-/* IRQ stubs (remapped to interrupts 32-47) */
 extern void irq0();  extern void irq1();  extern void irq2();  extern void irq3();
 extern void irq4();  extern void irq5();  extern void irq6();  extern void irq7();
 extern void irq8();  extern void irq9();  extern void irq10(); extern void irq11();
 extern void irq12(); extern void irq13(); extern void irq14(); extern void irq15();
 
-/* Syscall vector (int 0x80). */
-extern void isr128();
-
-// segment selector for unit16_t sel
-// flag -> what kind of interrupt it is --> for CPU
+extern void isr128();    /* int 0x80 */
 
 void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags) {
     idt[num].base_low  = base & 0xFFFF;
@@ -34,26 +29,21 @@ void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags) {
     idt[num].flags     = flags;
 }
 
-/* Remap the 8259 PIC so IRQ 0-7 → INT 32-39, IRQ 8-15 → INT 40-47.
-   Without this, IRQs 0-7 overlap CPU exception vectors 8-15. */
+/* Move PIC IRQs out of the CPU exception range: master→32-39, slave→40-47. */
 static void pic_remap(void) {
-    outb(0x20, 0x11);   /* ICW1: start init (master) */
-    outb(0xA0, 0x11);   /* ICW1: start init (slave)  */
-    outb(0x21, 0x20);   /* ICW2: master → INT 32     */
-    outb(0xA1, 0x28);   /* ICW2: slave  → INT 40     */
-    outb(0x21, 0x04);   /* ICW3: slave on IRQ2        */
-    outb(0xA1, 0x02);   /* ICW3: slave id = 2         */
-    outb(0x21, 0x01);   /* ICW4: 8086 mode            */
-    outb(0xA1, 0x01);
-    outb(0x21, 0xFC);   /* enable IRQ0 (PIT) and IRQ1 (keyboard) */
-    outb(0xA1, 0xFF);   /* mask all slave  IRQs */
+    outb(0x20, 0x11); outb(0xA0, 0x11);     /* ICW1: init           */
+    outb(0x21, 0x20); outb(0xA1, 0x28);     /* ICW2: vector offsets */
+    outb(0x21, 0x04); outb(0xA1, 0x02);     /* ICW3: cascade        */
+    outb(0x21, 0x01); outb(0xA1, 0x01);     /* ICW4: 8086 mode      */
+    outb(0x21, 0xFC);                       /* unmask IRQ0 + IRQ1   */
+    outb(0xA1, 0xFF);                       /* mask everything else */
 }
 
 int idt_install(void) {
     idtp.limit = sizeof(idt) - 1;
     idtp.base  = (uint32_t)&idt;
 
-    /* CPU exceptions */
+    /* Vectors 0..31: CPU exceptions. Flags 0x8E = present, ring 0, 32-bit interrupt gate. */
     idt_set_gate(0,  (uint32_t)isr0,  0x08, 0x8E);
     idt_set_gate(1,  (uint32_t)isr1,  0x08, 0x8E);
     idt_set_gate(2,  (uint32_t)isr2,  0x08, 0x8E);
@@ -89,7 +79,7 @@ int idt_install(void) {
 
     pic_remap();
 
-    /* IRQs */
+    /* Vectors 32..47: PIC IRQs. */
     idt_set_gate(32, (uint32_t)irq0,  0x08, 0x8E);
     idt_set_gate(33, (uint32_t)irq1,  0x08, 0x8E);
     idt_set_gate(34, (uint32_t)irq2,  0x08, 0x8E);
@@ -107,6 +97,7 @@ int idt_install(void) {
     idt_set_gate(46, (uint32_t)irq14, 0x08, 0x8E);
     idt_set_gate(47, (uint32_t)irq15, 0x08, 0x8E);
 
+    /* 0xEE = present, ring 3, 32-bit interrupt gate (user code may int 0x80). */
     idt_set_gate(0x80, (uint32_t)isr128, 0x08, 0xEE);
 
     __asm__ volatile("lidt (%0)" : : "r"(&idtp));
