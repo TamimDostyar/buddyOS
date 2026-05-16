@@ -4,7 +4,7 @@
 struct idt_entry idt[256];
 struct idt_ptr idtp;
 
-/* CPU exception stubs */
+/* All stubs live in isr_stubs.s. */
 extern void isr0();  extern void isr1();  extern void isr2();  extern void isr3();
 extern void isr4();  extern void isr5();  extern void isr6();  extern void isr7();
 extern void isr8();  extern void isr9();  extern void isr10(); extern void isr11();

@@ -26,8 +26,6 @@ static uint32_t parse_uint(const char *s) {
     return v;
 }
 
-/* ---- new syscall-backed builtins ---- */
-
 static void cmd_echo(char *args) {
     if (args) sys_write(1, args, strlen(args));
     sys_write(1, "\n", 1);
@@ -55,7 +53,6 @@ static void cmd_getpid(char *args) {
     vga_putchar('\n');
 }
 
-/* A trivial child for `spawn`: print a banner and exit. */
 static void demo_child_entry(void) {
     sys_write(1, "[child pid=", 11);
     char d[12]; int n = sys_getpid(); int i = 0;
@@ -83,8 +80,6 @@ static void cmd_spawn(char *args) {
     print_dec((uint32_t)status);
     vga_putchar('\n');
 }
-
-/* ---- legacy builtins kept ---- */
 
 void whoAmI(char *args){
     (void)args;

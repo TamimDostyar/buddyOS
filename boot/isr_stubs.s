@@ -3,7 +3,8 @@
 .extern isr_handler
 .extern irq_handler
 
-/* CPU exceptions that do NOT push an error code: push a dummy 0 first */
+/* Exceptions without an error code — push a dummy so the frame layout
+   matches the ones that do push. */
 .macro ISR_NOERRCODE num
 .global isr\num
 isr\num:
@@ -12,7 +13,6 @@ isr\num:
     jmp isr_common_stub
 .endm
 
-/* CPU exceptions that DO push an error code: CPU already pushed it */
 .macro ISR_ERRCODE num
 .global isr\num
 isr\num:
@@ -20,7 +20,6 @@ isr\num:
     jmp isr_common_stub
 .endm
 
-/* IRQ stubs: push dummy error code + remapped interrupt number */
 .macro IRQ num mapped
 .global irq\num
 irq\num:
@@ -63,8 +62,8 @@ ISR_NOERRCODE 29
 ISR_ERRCODE   30
 ISR_NOERRCODE 31
 
-/* Syscall vector 0x80 (128). Routed through a dedicated stub so the
-   dispatcher can write its return value into the saved-eax slot. */
+/* int 0x80 — own stub so the handler can clobber eax in the saved frame
+   and have it ride out through popa as the return value. */
 .extern syscall_isr_handler
 .global isr128
 isr128:
@@ -134,10 +133,6 @@ irq_common_stub:
     addl $8, %esp
     iret
 
-/* Syscall stub: identical to isr_common_stub but calls
-   syscall_isr_handler. Crucially, the handler is allowed to mutate
-   r->eax in the saved frame so that `popa` below restores the new
-   return value into eax. */
 syscall_common_stub:
     pusha
     pushl %ds
