@@ -6,7 +6,7 @@
 extern void     __task_set_current(int pid);
 extern Process *__scheduler_lookup(int pid);
 
-/* --- raw queue --- */
+// queue
 
 void init_scheduler(QueueScheduler *s) {
     s->queueHead = s->queueTail = s->queueSize = 0;
@@ -36,7 +36,7 @@ int schedule(QueueScheduler *s) {
     return p;
 }
 
-/* --- active scheduler --- */
+// active scheduler
 
 static QueueScheduler g_sched;
 static int            g_in_switch  = 0;
