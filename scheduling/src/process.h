@@ -18,12 +18,12 @@ typedef struct process {
     int       parentPID;
     int       processState;
     int       exit_status;
-    uint32_t  esp;           
-    void     *kstack;        
+    uint32_t  esp;            /* saved kernel esp for context_switch */
+    void     *kstack;
     char      name[16];
 } Process;
 
-/* Legacy "Pid_t" wrapper kept for backwards compatibility. */
+/* Pre-task-layer struct kept so callers still build. New code: use task_*. */
 typedef struct {
     Process *processTable;
     int      slotsTaken[MAX_PROCESSES];
@@ -34,7 +34,6 @@ typedef struct {
 int fork(Pid_t *pid_t, int parentPID);
 int exit_process(Pid_t *manager, int pid);
 int wait(Pid_t *manager, int parentPID);
-
 
 typedef void (*task_entry_t)(void);
 

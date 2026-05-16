@@ -13,7 +13,6 @@ typedef struct {
     char *description;
 } builtin_t;
 
-/* ---- helpers ---- */
 static void print_dec(uint32_t v) {
     char buf[12]; int i = 0;
     if (v == 0) { buf[i++] = '0'; }

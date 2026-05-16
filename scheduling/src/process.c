@@ -4,14 +4,12 @@
 #include <stdint.h>
 #include <stddef.h>
 
-
 static Process tasks[MAX_PROCESSES];
 static int     current_pid_v = 0;
 
-Process *task_current(void)          { return &tasks[current_pid_v]; }
-int      task_current_pid(void)      { return current_pid_v; }
+Process *task_current(void)     { return &tasks[current_pid_v]; }
+int      task_current_pid(void) { return current_pid_v; }
 
-/* Used by scheduler.c to flip the current pointer atomically with context_switch. */
 void __task_set_current(int pid) { current_pid_v = pid; }
 
 Process *__scheduler_lookup(int pid) {
@@ -19,13 +17,11 @@ Process *__scheduler_lookup(int pid) {
     return &tasks[pid];
 }
 
-
-/* If a task's entry function returns, control lands here. */
+/* Lands here when an entry function returns normally. */
 static void task_return_trampoline(void) {
     task_exit(0);
-    for (;;) { __asm__ volatile("cli; hlt"); }
+    for (;;) __asm__ volatile("cli; hlt");
 }
-
 
 void task_system_init(void) {
     for (int i = 0; i < MAX_PROCESSES; i++) {
@@ -38,11 +34,8 @@ void task_system_init(void) {
         tasks[i].name[0]      = '\0';
     }
 
-    /* Slot 0 = the running kmain context. We don't own its stack; it's
-       the boot stack set up in entry.asm (0x9C000). esp will be saved
-       the first time we switch away from it. 
-    */
-   // below the feature slots
+    /* PID 0 is the running kmain context. Its stack is the boot stack
+       from entry.asm; esp gets saved on the first switch away. */
     tasks[0].processState = PROCESS_RUNNING;
     tasks[0].name[0] = 'k'; tasks[0].name[1] = 'm';
     tasks[0].name[2] = 'a'; tasks[0].name[3] = 'i';
@@ -53,10 +46,7 @@ void task_system_init(void) {
     scheduler_add(&tasks[0]);
 }
 
-
 Process *task_create(const char *name, task_entry_t entry) {
-    /* Find a free slot (start at 1 — slot 0 is kmain). */
-
     int slot = -1;
     for (int i = 1; i < MAX_PROCESSES; i++) {
         if (tasks[i].processState == PROCESS_FREE) { slot = i; break; }
@@ -65,23 +55,21 @@ Process *task_create(const char *name, task_entry_t entry) {
 
     Process *p = &tasks[slot];
 
-    /* Allocate stack */
     void *st = kmalloc(KSTACK_SIZE);
     if (!st) return (Process *)0;
     p->kstack = st;
 
-    /* Build initial frame at the top of the stack. context_switch will
-       pop: eflags, edi, esi, ebx, ebp, ret. So push in reverse order:
-       trampoline, entry, ebp, ebx, esi, edi, eflags.                  
-    */
+    /* Fake the frame context_switch expects: it will popfl, pop
+       edi/esi/ebx/ebp, then ret into entry. If entry returns, the
+       trampoline below it gets popped and runs task_exit. */
     uint32_t *sp = (uint32_t *)((char *)st + KSTACK_SIZE);
-    *--sp = (uint32_t)task_return_trampoline;   
-    *--sp = (uint32_t)entry;                    
-    *--sp = 0;                                  
-    *--sp = 0;                                  
-    *--sp = 0;                                  
-    *--sp = 0;                                  
-    *--sp = 0x00000202;                         
+    *--sp = (uint32_t)task_return_trampoline;
+    *--sp = (uint32_t)entry;
+    *--sp = 0;                  /* ebp */
+    *--sp = 0;                  /* ebx */
+    *--sp = 0;                  /* esi */
+    *--sp = 0;                  /* edi */
+    *--sp = 0x00000202;         /* eflags: IF=1, reserved bit 1 */
     p->esp = (uint32_t)sp;
 
     p->parentPID    = current_pid_v;
@@ -96,12 +84,8 @@ Process *task_create(const char *name, task_entry_t entry) {
     return p;
 }
 
-
-/* True kernel-thread fork: child starts at child_entry, not at the
-   parent's PC. Real Unix fork (copy-on-write image) needs paging; this
-   is sufficient for a multitasking shell that does fork()+exec() in
-   sequence. 
-*/
+/* Not a real fork: child starts at child_entry, not at the parent's PC.
+   Good enough for fork-then-exec; full image copy needs paging. */
 int task_fork(task_entry_t child_entry) {
     Process *child = task_create("forked", child_entry);
     if (!child) return -1;
@@ -113,7 +97,6 @@ void task_exit(int status) {
     me->exit_status  = status;
     me->processState = PROCESS_ZOMBIE;
 
-    /* Wake parent if it's waiting on any child. */
     if (me->parentPID >= 0 && me->parentPID < MAX_PROCESSES) {
         Process *parent = &tasks[me->parentPID];
         if (parent->processState == PROCESS_WAITING) {
@@ -122,15 +105,14 @@ void task_exit(int status) {
         }
     }
 
-    scheduler_yield();          /* never returns */
-    for (;;) { __asm__ volatile("cli; hlt"); }
+    scheduler_yield();
+    for (;;) __asm__ volatile("cli; hlt");      /* unreachable */
 }
 
 int task_wait(int *out_status) {
     Process *me = &tasks[current_pid_v];
 
     for (;;) {
-        /* Look for a zombie child. */
         for (int i = 1; i < MAX_PROCESSES; i++) {
             if (tasks[i].parentPID    == current_pid_v &&
                 tasks[i].processState == PROCESS_ZOMBIE) {
@@ -138,7 +120,6 @@ int task_wait(int *out_status) {
                 int cpid = tasks[i].pid;
                 if (out_status) *out_status = tasks[i].exit_status;
 
-                /* Reap. */
                 if (tasks[i].kstack) {
                     kfree(tasks[i].kstack);
                     tasks[i].kstack = (void *)0;
@@ -149,21 +130,18 @@ int task_wait(int *out_status) {
             }
         }
 
-        /* No zombie yet — block. */
         me->processState = PROCESS_WAITING;
         scheduler_yield();
-        /* On resume, parent is READY/RUNNING again, retry the scan. */
     }
 }
 
 void task_yield(void) { scheduler_yield(); }
 
+/* --- pre-task-layer shims; new callers should use task_*. --- */
 
 int fork(Pid_t *p, int parentPID) {
     (void)p; (void)parentPID;
-    /* Forward to the new layer; child entry must be wired by caller via
-       task_create — return -1 so any stale callsite is obvious.        */
-    return -1;
+    return -1;                  /* loud failure if anyone still calls this */
 }
 
 int exit_process(Pid_t *p, int pid) {

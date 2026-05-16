@@ -13,20 +13,19 @@ typedef struct {
     int currentPID;
 } QueueScheduler;
 
-/* ---------- legacy round-robin queue API ---------- */
-void init_scheduler(QueueScheduler *scheduler);
-int  enqueue(QueueScheduler *scheduler, int pid);
-int  dequeue(QueueScheduler *scheduler);
-int  schedule(QueueScheduler *scheduler);
+/* Raw queue ops (used by the active scheduler below). */
+void init_scheduler(QueueScheduler *s);
+int  enqueue(QueueScheduler *s, int pid);
+int  dequeue(QueueScheduler *s);
+int  schedule(QueueScheduler *s);
 
-/* ---------- new active scheduler API ---------- */
 void scheduler_init(void);
 void scheduler_add(Process *p);
 void scheduler_remove(Process *p);
 void scheduler_on_tick(void);
 void scheduler_yield(void);
 
-/* Implemented in switch.s — swaps esp + callee-saved regs. */
+/* switch.s */
 extern void context_switch(uint32_t *save_old_esp, uint32_t new_esp);
 
 #endif

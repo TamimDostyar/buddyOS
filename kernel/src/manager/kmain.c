@@ -23,7 +23,7 @@ static void read_line(const char *prompt, char *buffer, int max_len, int echo_in
 
     while (1) {
         char c;
-        sys_read(0, &c, 1);          /* blocking; hlt's between IRQs */
+        sys_read(0, &c, 1);
 
         if (c == '\n') {
             buffer[index] = '\0';
@@ -73,30 +73,21 @@ static void login_prompt(void) {
 }
 
 void kmain(void) {
-    /* ---- bring up subsystems ---- */
     vga_init();
     keyboard_init();
     idt_install();
     fs_mount();
     heap_init();
-
-    /* PIT after IDT (PIT IRQ uses the IDT). */
-    pit_init();
-
-    /* Multitasking: register the running kmain context as task 0. */
+    pit_init();             /* requires idt_install first */
     task_system_init();
 
-    /* Now safe to enable interrupts. */
     __asm__ volatile("sti");
 
     vga_write("BuddyOS kernel up. Type 'help' for builtins.\n\n");
-
     vga_lock_cursor();
     session_init();
     login_prompt();
-
     shell_main();
 
-    /* If the shell ever returns, idle. */
-    for (;;) { __asm__ volatile("sti; hlt"); }
+    for (;;) __asm__ volatile("sti; hlt");
 }

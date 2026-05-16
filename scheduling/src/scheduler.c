@@ -4,11 +4,9 @@
 #include <stddef.h>
 
 extern void     __task_set_current(int pid);
-extern Process *__scheduler_lookup(int pid);   /* defined in process.c */
+extern Process *__scheduler_lookup(int pid);
 
-/* ------------------------------------------------------------------ */
-/* Legacy round-robin queue (unchanged API)                           */
-/* ------------------------------------------------------------------ */
+/* --- raw queue --- */
 
 void init_scheduler(QueueScheduler *s) {
     s->queueHead = s->queueTail = s->queueSize = 0;
@@ -38,26 +36,22 @@ int schedule(QueueScheduler *s) {
     return p;
 }
 
-/* ------------------------------------------------------------------ */
-/* Active scheduler: a single global ring of pids                      */
-/* ------------------------------------------------------------------ */
+/* --- active scheduler --- */
 
 static QueueScheduler g_sched;
 static int            g_in_switch  = 0;
 static uint32_t       g_tick_count = 0;
 #define TICKS_PER_SLICE 1
 
-void scheduler_init(void) {
-    init_scheduler(&g_sched);
-}
+void scheduler_init(void) { init_scheduler(&g_sched); }
 
 void scheduler_add(Process *p) {
     if (!p) return;
-    /* Avoid double-enqueue. */
+
     int i = g_sched.queueHead;
     int n = g_sched.queueSize;
     while (n-- > 0) {
-        if (g_sched.readyQueue[i] == p->pid) return;
+        if (g_sched.readyQueue[i] == p->pid) return;   /* already queued */
         i = (i + 1) % MAX_QUEUE_SIZE;
     }
     enqueue(&g_sched, p->pid);
@@ -80,7 +74,8 @@ void scheduler_remove(Process *p) {
     for (int i = 0; i < kept; i++) g_sched.readyQueue[i] = tmp[i];
 }
 
-/* Pick the next runnable pid that's not self. -1 if none. */
+/* Round-robin pick. Non-runnable tasks are dropped from the queue;
+   self stays unless something else is ready. */
 static int pick_next(int self) {
     int tries = g_sched.queueSize;
     while (tries-- > 0) {
@@ -92,12 +87,8 @@ static int pick_next(int self) {
 
         if (cand->processState == PROCESS_ZOMBIE  ||
             cand->processState == PROCESS_FREE    ||
-            cand->processState == PROCESS_WAITING) {
-            /* Drop from queue — not runnable right now. */
-            continue;
-        }
+            cand->processState == PROCESS_WAITING) continue;
 
-        /* Re-queue at tail for round robin. */
         enqueue(&g_sched, pid);
         if (pid != self) return pid;
     }
@@ -122,7 +113,6 @@ void scheduler_yield(void) {
     __task_set_current(next);
     g_in_switch = 0;
     context_switch(&cur->esp, nxt->esp);
-    /* Resumes here when this task is scheduled back in. */
 }
 
 void scheduler_on_tick(void) {

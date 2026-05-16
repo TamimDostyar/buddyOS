@@ -27,7 +27,7 @@ void shell_main(void) {
         int idx = 0;
         while (1) {
             char c;
-            sys_read(0, &c, 1);          /* hlt's between keys */
+            sys_read(0, &c, 1);
 
             if (c == '\n') {
                 vga_putchar('\n');

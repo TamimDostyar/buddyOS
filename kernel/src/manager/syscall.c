@@ -51,7 +51,6 @@ void sys_yield(void) {
 }
 
 void sys_ps(void) {
-    /* Walk pids 0..MAX-1 via __scheduler_lookup. */
     extern Process *__scheduler_lookup(int pid);
     vga_write("  PID  STATE      NAME\n");
     for (int i = 0; i < 64; i++) {
@@ -65,7 +64,6 @@ void sys_ps(void) {
             case PROCESS_ZOMBIE:  st = "ZOMBIE  "; break;
             default:              st = "?       "; break;
         }
-        /* Tiny manual print: pid + spaces + state + name. */
         char d[6];
         int v = p->pid; int k = 0;
         if (v == 0) d[k++] = '0';
@@ -99,8 +97,7 @@ int syscall_dispatch(int num,
         case SYS_READ:    return sys_read((int)arg1, (char *)arg2, (int)arg3);
         case SYS_EXIT:    sys_exit((int)arg1); return 0;
         case SYS_FORK:    return sys_fork((void (*)(void))arg1);
-        case SYS_EXEC:    /* exec is implemented in shell layer: fork+entry */
-                           return -1;
+        case SYS_EXEC:    return -1;     /* shell does fork(entry) directly */
         case SYS_WAIT:    return sys_wait((int *)arg1);
         case SYS_GETPID:  return sys_getpid();
         case SYS_SLEEP:   sys_sleep(arg1); return 0;
