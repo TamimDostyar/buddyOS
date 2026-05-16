@@ -99,45 +99,33 @@ void isr_handler(struct regs *r) {
     vga_write(" ESP=");
     write_hex(r->esp);
 
-    /* For page faults, dump CR2 (faulting linear address). */
     if (r->int_no == 14) {
         uint32_t cr2;
         __asm__ volatile("mov %%cr2, %0" : "=r"(cr2));
         vga_write("\nCR2=");
         write_hex(cr2);
     }
-    vga_write("\n*** System halted ***\n");
+    vga_write("\n*** halted ***\n");
 
-    for (;;) {
-        __asm__ volatile("cli; hlt");
-    }
+    for (;;) __asm__ volatile("cli; hlt");
 }
 
 void irq_handler(struct regs *r) {
     int from_timer = (r->int_no == 32);
 
-    if (r->int_no == 32) {              /* IRQ0: PIT */
-        pit_tick();
-    } else if (r->int_no == 33) {       /* IRQ1: keyboard */
-        keyboardHandler();
-    }
+    if (from_timer)               pit_tick();
+    else if (r->int_no == 33)     keyboardHandler();
 
-    if (r->int_no >= 40)
-        outb(PIC2_CMD, PIC_EOI);
+    if (r->int_no >= 40) outb(PIC2_CMD, PIC_EOI);
     outb(PIC1_CMD, PIC_EOI);
 
-    /* After EOI, ask the scheduler to maybe switch tasks. Doing this
-       in-IRQ is safe because we're on the per-task kernel stack — the
-       saved registers above us will be restored when we eventually
-       return to this task. */
-    if (from_timer) {
-        scheduler_on_tick();
-    }
+    /* Tick-driven preemption. Safe in-IRQ: each task owns its kernel
+       stack, so the saved frame above us belongs to whoever ran last. */
+    if (from_timer) scheduler_on_tick();
 }
 
-/* Syscall entry point (int 0x80). User passes syscall number in eax and
-   args in ebx/ecx/edx/esi. Return value is written back into r->eax,
-   which is then popped into eax by the common stub on iret. */
+/* eax=syscall, args in ebx/ecx/edx/esi; return goes back into r->eax
+   so the common stub's popa restores it to the caller. */
 void syscall_isr_handler(struct regs *r) {
     r->eax = (unsigned int)syscall_dispatch(
         (int)r->eax, r->ebx, r->ecx, r->edx, r->esi);

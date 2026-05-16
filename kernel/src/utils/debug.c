@@ -54,9 +54,6 @@ void intToStr(int num, char *str) {
 
 void _kprintf_impl(Type type, unsigned *args) {
     char buff[12];
-    if (isBreathing() == true){
-        printf("keep working\n");
-    }
     switch (type) {
     case typeINT:
         intToStr(*(int*)args, buff);

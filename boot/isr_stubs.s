@@ -63,6 +63,15 @@ ISR_NOERRCODE 29
 ISR_ERRCODE   30
 ISR_NOERRCODE 31
 
+/* Syscall vector 0x80 (128). Routed through a dedicated stub so the
+   dispatcher can write its return value into the saved-eax slot. */
+.extern syscall_isr_handler
+.global isr128
+isr128:
+    pushl $0
+    pushl $128
+    jmp syscall_common_stub
+
 /* IRQs 0-15 remapped to interrupts 32-47 */
 IRQ  0  32
 IRQ  1  33
@@ -116,6 +125,32 @@ irq_common_stub:
     movw %ax, %gs
     pushl %esp
     call irq_handler
+    addl $4, %esp
+    popl %gs
+    popl %fs
+    popl %es
+    popl %ds
+    popa
+    addl $8, %esp
+    iret
+
+/* Syscall stub: identical to isr_common_stub but calls
+   syscall_isr_handler. Crucially, the handler is allowed to mutate
+   r->eax in the saved frame so that `popa` below restores the new
+   return value into eax. */
+syscall_common_stub:
+    pusha
+    pushl %ds
+    pushl %es
+    pushl %fs
+    pushl %gs
+    movl $0x10, %eax
+    movw %ax, %ds
+    movw %ax, %es
+    movw %ax, %fs
+    movw %ax, %gs
+    pushl %esp
+    call syscall_isr_handler
     addl $4, %esp
     popl %gs
     popl %fs

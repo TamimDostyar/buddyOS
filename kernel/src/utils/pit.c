@@ -17,9 +17,9 @@ void pit_init(void) {
     outb(PIT_CH0_DATA, (uint8_t)(divisor & 0xFF));
     outb(PIT_CH0_DATA, (uint8_t)((divisor >> 8) & 0xFF));
 
+    /* Unmask IRQ0 without touching IRQ1's existing mask bit. */
     uint8_t mask = inb(0x21);
-    mask &= ~0x01;   
-    outb(0x21, mask);
+    outb(0x21, mask & ~0x01);
 }
 
 void pit_tick(void) {

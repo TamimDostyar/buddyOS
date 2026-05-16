@@ -20,6 +20,9 @@ extern void irq4();  extern void irq5();  extern void irq6();  extern void irq7(
 extern void irq8();  extern void irq9();  extern void irq10(); extern void irq11();
 extern void irq12(); extern void irq13(); extern void irq14(); extern void irq15();
 
+/* Syscall vector (int 0x80). */
+extern void isr128();
+
 // segment selector for unit16_t sel
 // flag -> what kind of interrupt it is --> for CPU
 
@@ -42,7 +45,7 @@ static void pic_remap(void) {
     outb(0xA1, 0x02);   /* ICW3: slave id = 2         */
     outb(0x21, 0x01);   /* ICW4: 8086 mode            */
     outb(0xA1, 0x01);
-    outb(0x21, 0xFD);   /* mask all master IRQs except IRQ1 (keyboard) */
+    outb(0x21, 0xFC);   /* enable IRQ0 (PIT) and IRQ1 (keyboard) */
     outb(0xA1, 0xFF);   /* mask all slave  IRQs */
 }
 
@@ -103,6 +106,8 @@ int idt_install(void) {
     idt_set_gate(45, (uint32_t)irq13, 0x08, 0x8E);
     idt_set_gate(46, (uint32_t)irq14, 0x08, 0x8E);
     idt_set_gate(47, (uint32_t)irq15, 0x08, 0x8E);
+
+    idt_set_gate(0x80, (uint32_t)isr128, 0x08, 0xEE);
 
     __asm__ volatile("lidt (%0)" : : "r"(&idtp));
 
